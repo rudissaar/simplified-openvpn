@@ -28,13 +28,28 @@ class SimplifiedOpenVPN:
             return True
 
     def set_server_dir(self, value):
-        return self.handle_common_setting('server_dir', value)
+        status = self.handle_common_setting('server_dir', value)
+        if not status:
+            print("Value that you specified as Server's directory is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
 
     def set_easy_rsa_dir(self, value):
-        return self.handle_common_setting('easy_rsa_dir', value)
+        status = self.handle_common_setting('easy_rsa_dir', value)
+        if not status:
+            print("Value that you specified as directory for Easy RSA is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
         
     def set_clients_dir(self, value):
-        return self.handle_common_setting('clients_dir', value)
+        status = self.handle_common_setting('clients_dir', value)
+        if not status:
+            # TODO mkdir.
+            #status = self.handle_common_setting('clients_dir', value)
         
     def create_client(self):
         print(self.settings)
