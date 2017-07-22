@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os, sys
+import os, sys, inspect
 from shutil import copyfile
 from slugify import slugify
 import pystache
@@ -19,13 +19,22 @@ class SimplifiedOpenVPN:
             path = path + '/'
         return path
 
-    def set_clients_dir(self, clients_dir):
-        clients_dir = self.sanitize_path(clients_dir)
-        if not os.path.isdir(clients_dir):
+    def handle_common_setting(self, key, value):
+        value = self.sanitize_path(value)
+        if not os.path.isdir(value):
             return False
         else:
-            self.settings['clients_dir'] = clients_dir
+            self.settings[key] = value
             return True
+
+    def set_server_dir(self, value):
+        return self.handle_common_setting('server_dir', value)
+
+    def set_easy_rsa_dir(self, value):
+        return self.handle_common_setting('easy_rsa_dir', value)
+        
+    def set_clients_dir(self, value):
+        return self.handle_common_setting('clients_dir', value)
         
     def create_client(self):
         print(self.settings)
