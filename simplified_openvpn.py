@@ -45,11 +45,18 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
         
-    def set_clients_dir(self, value):
+    def set_clients_dir(self, value, create = False):
+        if create:
+            if not os.path.exists(value):
+                os.makedirs(value, 0o700)
+                
         status = self.handle_common_setting('clients_dir', value)
         if not status:
-            # TODO mkdir.
-            #status = self.handle_common_setting('clients_dir', value)
-        
+            print("Value that you specified as directory for clients is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
+            
     def create_client(self):
         print(self.settings)
