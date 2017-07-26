@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, sys, inspect
 from shutil import copyfile
+from subprocess import run
 from slugify import slugify
 import pystache
 import zipfile
@@ -45,7 +46,7 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
         
-    def set_clients_dir(self, value, create = False):
+    def set_clients_dir(self, value, create=False):
         if create:
             if not os.path.exists(value):
                 os.makedirs(value, 0o700)
@@ -57,6 +58,25 @@ class SimplifiedOpenVPN:
             print('> Does the directory really exist in your filesystem?')
             print('> The specified directory has write and execute permissions.')
             exit(1)
-            
-    def create_client(self):
+
+    def client_dir_exists(self, slug, verbose=True):
+        if os.path.isdir(self.settings['clients_dir'] + slug):
+            print('Client this with common name already exists.')
+            return True
+        return False
+    
+    def create_client(self, common_name=None):
+        if common_name is None:
+            while common_name is None:
+                common_name = input('Enter Common Name for client: ').strip()
+                slug = slugify(common_name)
+                if self.client_dir_exists(slug) or common_name == '':
+                    common_name = None
+        else:
+            slug = slugify(common_name.strip())
+            if self.client_dir_exists(slug):
+                exit(1)
+
+        os.chdir(self.settings['easy_rsa_dir'])
+        run('./build-key ' + slug, shell=True)
         print(self.settings)
