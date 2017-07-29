@@ -9,9 +9,9 @@ import zipfile
 
 class SimplifiedOpenVPN:
     settings = dict()
-    self.settings['clients_dir'] = '/root/openvpn-clients/'
-    self.settings['server_dir'] = '/etc/openvpn/'
-    self.settings['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
+    settings['clients_dir'] = '/root/openvpn-clients/'
+    settings['server_dir'] = '/etc/openvpn/'
+    settings['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
 
     def __init__(self):
         pass
