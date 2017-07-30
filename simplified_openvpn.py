@@ -21,6 +21,11 @@ class SimplifiedOpenVPN:
             path = path + '/'
         return path
 
+    @staticmethod
+    def create_directory(value, mode=0o700):
+        if not os.path.exists(value):
+            os.makedirs(value, mode)
+
     def handle_common_setting(self, key, value):
         value = self.sanitize_path(value)
         if not os.path.isdir(value):
@@ -46,12 +51,11 @@ class SimplifiedOpenVPN:
             print('> Does the directory really exist in your filesystem?')
             print('> The specified directory has write and execute permissions.')
             exit(1)
-        
+
     def set_clients_dir(self, value, create=False):
         if create:
-            if not os.path.exists(value):
-                os.makedirs(value, 0o700)
-                
+            self.create_directory(value)
+
         status = self.handle_common_setting('clients_dir', value)
         if not status:
             print("Value that you specified as directory for clients is invalid: (" + value + ")")
@@ -60,12 +64,23 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
 
+    def set_client_dir(self, slug, create=True):
+        value = self.settings['clients_dir'] + slug
+        if create:
+            self.create_directory(value)
+        status = self.handle_common_setting('client_dir', value)
+
     def client_dir_exists(self, slug, verbose=True):
         if os.path.isdir(self.settings['clients_dir'] + slug):
             print('Client this with common name already exists.')
             return True
         return False
-    
+
+    def move_client_files(self, slug):
+        client_files = [slug + '.crt', slug + '.key']
+        for client_file in client_files:
+            os.rename(settings['easy_rsa_dir'] + 'keys/' + client_file, self.client_dir)
+
     def create_client(self, common_name=None):
         if common_name is None:
             while common_name is None:
@@ -78,6 +93,7 @@ class SimplifiedOpenVPN:
             if self.client_dir_exists(slug):
                 exit(1)
 
+        self.set_client_dir(slug)
         os.chdir(self.settings['easy_rsa_dir'])
-        run('./build-key ' + slug, shell=True)
+        run('./build-key ' + slug + ' 1> /dev/null', shell=True)
         print(self.settings)
