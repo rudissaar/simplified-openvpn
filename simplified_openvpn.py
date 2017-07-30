@@ -80,7 +80,7 @@ class SimplifiedOpenVPN:
     def move_client_files(self, slug):
         client_files = [slug + '.crt', slug + '.key']
         for client_file in client_files:
-            os.rename(settings['easy_rsa_dir'] + 'keys/' + client_file, self.client_dir)
+            os.rename(self.settings['easy_rsa_dir'] + 'keys/' + client_file, self.settings['client_dir'] + client_file)
 
     def create_client(self, common_name=None):
         if common_name is None:
@@ -94,7 +94,8 @@ class SimplifiedOpenVPN:
             if self.client_dir_exists(slug):
                 exit(1)
 
-        self.set_client_dir(slug)
         os.chdir(self.settings['easy_rsa_dir'])
         run('./build-key ' + slug + ' 1> /dev/null', shell=True)
+        self.set_client_dir(slug)
+        self.move_client_files(slug)
         print(self.settings)
