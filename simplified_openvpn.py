@@ -16,7 +16,8 @@ class SimplifiedOpenVPN:
     def __init__(self):
         pass
 
-    def sanitize_path(self, path):
+    @staticmethod
+    def sanitize_path(path):
         if not path.endswith('/'):
             path = path + '/'
         return path
