@@ -4,6 +4,7 @@ import os, sys, inspect
 from shutil import copyfile
 from subprocess import run
 from slugify import slugify
+from requests import get
 import pystache
 import zipfile
 
@@ -15,6 +16,29 @@ class SimplifiedOpenVPN:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def validate_ip(ip):
+        if type(ip) is str and len(ip.strip()) > 6:
+            return True
+        return False
+
+    def fetch_external_ip(self):
+        ip = get('http://api.ipify.org').text
+        if self.validate_ip(ip):
+            return ip.strip()
+        return None
+
+    def get_external_ip(self):
+        ip = self.fetch_external_ip()
+        while ip is None:
+            ip = input('Enter External IP for server: ').strip()
+            if not self.validate_ip(ip):
+                ip = None
+        print(ip)
+
+    def server_install(self):
+        self.get_external_ip()
 
     @staticmethod
     def sanitize_path(path):
