@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os, sys, inspect
+import os, sys, socket, re
 from shutil import copyfile
 from subprocess import run
 from slugify import slugify
@@ -35,10 +35,29 @@ class SimplifiedOpenVPN:
             ip = input('Enter External IP for server: ').strip()
             if not self.validate_ip(ip):
                 ip = None
-        print(ip)
+        return ip.strip()
+
+    @staticmethod
+    def is_valid_hostname(hostname):
+        if len(hostname) > 255:
+            print('False')
+            return False
+        print('True')
+        return True
+
+    is_valid_domain = is_valid_hostname
+
+    @staticmethod
+    def fetch_hostname_by_system():
+        return socket.getfqdn()
+
+    @staticmethod
+    def fetch_hostname_by_reverse_dns(ip):
+        return socket.gethostbyaddr(ip)
 
     def server_install(self):
-        self.get_external_ip()
+        hostname = self.fetch_hostname_by_system()
+        self.is_valid_domain(hostname)
 
     @staticmethod
     def sanitize_path(path):
