@@ -127,14 +127,19 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
 
+    @property
+    def client_dir(self):
+        return self.settings['client']['client_dir']
+
+    @client_dir.setter
     def client_dir(self, slug, create=True):
-        value = self.settings['clients_dir'] + slug
+        value = self.settings['server']['clients_dir'] + slug
         if create:
             self.create_directory(value)
-        status = self.handle_common_setting('client_dir', value)
+        status = self.handle_common_dir_setting('client_dir', value, 'client')
 
     def client_dir_exists(self, slug, verbose=True):
-        if os.path.isdir(self.settings['clients_dir'] + slug):
+        if os.path.isdir(self.settings['server']['clients_dir'] + slug):
             print('Client this with common name already exists.')
             return True
         return False
@@ -142,13 +147,19 @@ class SimplifiedOpenVPN:
     def move_client_files(self, slug):
         client_files = [slug + '.crt', slug + '.key']
         for client_file in client_files:
-            os.rename(self.settings['easy_rsa_dir'] + 'keys/' + client_file, self.settings['client_dir'] + client_file)
+            source = self.settings['server']['easy_rsa_dir'] + 'keys/' + client_file
+            destination = self.settings['client']['client_dir'] + client_file
+            os.rename(source, destination)
 
     def copy_ca_file(self):
-         copyFile(self.settings['easy_rsa_dir'] + 'keys/ca.crt', self.settings['client_dir'] + 'ca.crt')
+        source = self.settings['server']['easy_rsa_dir'] + 'keys/ca.crt'
+        destination = self.settings['client']['client_dir'] + 'ca.crt'
+        copyfile(source, destination)
          
     def copy_ta_file(self):
-         copyFile(self.settings['server_dir'] + 'ta.key', self.settings['client_dir'] + 'ta.key')
+        source = self.settings['server']['server_dir'] + 'ta.key'
+        destination = self.settings['client']['client_dir'] + 'ta.key'
+        copyfile(source, destination)
 
     def create_client(self, common_name=None):
         if common_name is None:
@@ -162,10 +173,10 @@ class SimplifiedOpenVPN:
             if self.client_dir_exists(slug):
                 exit(1)
 
-        os.chdir(self.settings['easy_rsa_dir'])
+        os.chdir(self.settings['server']['easy_rsa_dir'])
         run('./build-key ' + slug + ' 1> /dev/null', shell=True)
 
-        self.set_client_dir(slug)
+        self.client_dir = slug
         self.move_client_files(slug)
         self.copy_ca_file()
         self.copy_ta_file()
