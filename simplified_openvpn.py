@@ -10,9 +10,13 @@ import zipfile
 
 class SimplifiedOpenVPN:
     settings = dict()
-    settings['clients_dir'] = '/root/openvpn-clients/'
-    settings['server_dir'] = '/etc/openvpn/'
-    settings['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
+    settings['server'] = dict()
+    settings['client'] = dict()
+
+    # Defaults.
+    settings['server']['clients_dir'] = '/root/openvpn-clients/'
+    settings['server']['server_dir'] = '/etc/openvpn/'
+    settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
 
     def __init__(self):
         pass
@@ -70,16 +74,21 @@ class SimplifiedOpenVPN:
         if not os.path.exists(value):
             os.makedirs(value, mode)
 
-    def handle_common_setting(self, key, value):
+    def handle_common_dir_setting(self, key, value, pool='server'):
         value = self.sanitize_path(value)
         if not os.path.isdir(value):
             return False
         else:
-            self.settings[key] = value
+            self.settings[pool][key] = value
             return True
 
-    def set_server_dir(self, value):
-        status = self.handle_common_setting('server_dir', value)
+    @property
+    def server_dir(self):
+        return self.settings['server']['server_dir']
+
+    @server_dir.setter
+    def server_dir(self, value):
+        status = self.handle_common_dir_setting('server_dir', value)
         if not status:
             print("Value that you specified as Server's directory is invalid: (" + value + ")")
             print('Make sure that the value you gave meets following requirements:')
@@ -87,7 +96,12 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
 
-    def set_easy_rsa_dir(self, value):
+    @property
+    def easy_rsa_dir(self):
+        return self.settings['server']['easy_rsa_dir']
+
+    @easy_rsa_dir.setter
+    def easy_rsa_dir(self, value):
         status = self.handle_common_setting('easy_rsa_dir', value)
         if not status:
             print("Value that you specified as directory for Easy RSA is invalid: (" + value + ")")
@@ -96,11 +110,16 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
 
-    def set_clients_dir(self, value, create=False):
+    @property
+    def clients_dir(self):
+        return self.settings['server']['clients_dir']
+
+    @clients_dir.setter
+    def clients_dir(self, value, create=False):
         if create:
             self.create_directory(value)
 
-        status = self.handle_common_setting('clients_dir', value)
+        status = self.handle_common_dir_setting('clients_dir', value)
         if not status:
             print("Value that you specified as directory for clients is invalid: (" + value + ")")
             print('Make sure that the value you gave meets following requirements:')
@@ -108,7 +127,7 @@ class SimplifiedOpenVPN:
             print('> The specified directory has write and execute permissions.')
             exit(1)
 
-    def set_client_dir(self, slug, create=True):
+    def client_dir(self, slug, create=True):
         value = self.settings['clients_dir'] + slug
         if create:
             self.create_directory(value)
