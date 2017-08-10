@@ -18,7 +18,7 @@ class SimplifiedOpenVPN:
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
 
-    settings['client']['common_name'] = None
+    settings['client']['pretty_name'] = None
 
     def __init__(self):
         pass
@@ -130,12 +130,12 @@ class SimplifiedOpenVPN:
             exit(1)
 
     @property
-    def common_name(self):
-        return self.settings['client']['common_name']
+    def pretty_name(self):
+        return self.settings['client']['pretty_name']
 
-    @common_name.setter
-    def common_name(self, value):
-        self.settings['client']['common_name'] = value.strip()
+    @pretty_name.setter
+    def pretty_name(self, value):
+        self.settings['client']['pretty_name'] = value.strip()
 
     @property
     def client_dir(self):
@@ -171,15 +171,15 @@ class SimplifiedOpenVPN:
         destination = self.settings['client']['client_dir'] + 'ta.key'
         copyfile(source, destination)
 
-    def create_client(self, common_name=None):
-        if self.settings['client']['common_name'] is None:
-            while common_name is None:
-                common_name = input('Enter Common Name for client: ').strip()
-                slug = slugify(common_name)
-                if self.client_dir_exists(slug) or common_name == '':
-                    common_name = None
+    def create_client(self, pretty_name=None):
+        if self.settings['client']['pretty_name'] is None:
+            while pretty_name is None:
+                pretty_name = input('Enter Full Name for client: ').strip()
+                slug = slugify(pretty_name)
+                if self.client_dir_exists(slug) or pretty_name == '':
+                    pretty_name = None
         else:
-            slug = slugify(self.settings['client']['common_name'])
+            slug = slugify(self.settings['client']['pretty_name'])
             if self.client_dir_exists(slug):
                 exit(1)
 
