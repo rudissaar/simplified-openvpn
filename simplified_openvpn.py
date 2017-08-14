@@ -158,6 +158,19 @@ class SimplifiedOpenVPN:
             return True
         return False
 
+    def create_pretty_name_file(self):
+        if not self.settings['client']['client_dir']:
+            return False
+
+        if self.settings['client']['pretty_name']:
+            file_path = self.settings['client']['client_dir'] + 'pretty-name.txt'
+            file_handle = open(file_path, 'w')
+            file_handle.write(self.settings['client']['pretty_name'] + "\n")
+            file_handle.close()
+            return True
+
+        return False
+
     def move_client_files(self, slug):
         client_files = [slug + '.crt', slug + '.key']
         for client_file in client_files:
@@ -182,6 +195,8 @@ class SimplifiedOpenVPN:
                 slug = slugify(pretty_name)
                 if self.client_dir_exists(slug) or pretty_name == '':
                     pretty_name = None
+
+            self.settings['client']['pretty_name'] = pretty_name
         else:
             slug = slugify(self.settings['client']['pretty_name'])
             if self.client_dir_exists(slug):
@@ -191,6 +206,7 @@ class SimplifiedOpenVPN:
         run('./build-key ' + slug + ' 1> /dev/null', shell=True)
 
         self.client_dir = slug
+        self.create_pretty_name_file()
         self.move_client_files(slug)
         self.copy_ca_file()
         self.copy_ta_file()
