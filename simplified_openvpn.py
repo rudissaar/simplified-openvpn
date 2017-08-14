@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os, sys, socket, re
+import os
+import sys
+import socket
+import re
+import pystache
+import zipfile
 from shutil import copyfile
 from subprocess import run
 from slugify import slugify
 from requests import get
-import pystache
-import zipfile
+
 
 class SimplifiedOpenVPN:
     settings = dict()
