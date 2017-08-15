@@ -188,6 +188,15 @@ class SimplifiedOpenVPN:
         destination = self.settings['client']['client_dir'] + 'ta.key'
         copyfile(source, destination)
 
+    @staticmethod
+    def create_client_config_file(client_settings):
+        config_path = client_settings['client_dir'] + 'config.ovpn'
+        config_file = open(config_path, 'w')
+        config_file.close()
+
+    def create_client_config_files(self):
+        self.create_client_config_file(self.settings['client'])
+
     def create_client(self, pretty_name=None):
         if self.settings['client']['pretty_name'] is None:
             while pretty_name is None:
@@ -210,3 +219,8 @@ class SimplifiedOpenVPN:
         self.move_client_files(slug)
         self.copy_ca_file()
         self.copy_ta_file()
+
+        os.chdir(self.settings['client']['client_dir'])
+
+        self.create_client_config_files() 
+
