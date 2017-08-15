@@ -21,6 +21,8 @@ class SimplifiedOpenVPN:
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
+    settings['server']['hostname_file'] = '/etc/openvpn/hostname'
+    settings['server']['hostname'] = None
 
     settings['client']['pretty_name'] = None
 
@@ -64,6 +66,20 @@ class SimplifiedOpenVPN:
     @staticmethod
     def fetch_hostname_by_reverse_dns(ip):
         return socket.gethostbyaddr(ip)
+
+    @property
+    def hostname(self):
+        hostname = self.settings['server']['hostname']
+        if hostname is None:
+            return self.fetch_hostname_by_system()
+
+    @hostname.setter
+    def hostname(self, value):
+        if not self.is_valid_hostname(value):
+            return False
+
+        self.settings['server']['hostname'] = value
+        return True
 
     def server_install(self):
         hostname = self.fetch_hostname_by_system()
@@ -188,9 +204,8 @@ class SimplifiedOpenVPN:
         destination = self.settings['client']['client_dir'] + 'ta.key'
         copyfile(source, destination)
 
-    @staticmethod
-    def create_client_config_file(client_settings):
-        config_path = client_settings['client_dir'] + 'config.ovpn'
+    def create_client_config_file(self, options=None):
+        config_path = self.settings['client']['client_dir'] + self.settings['server']['hostname'] + '.ovpn'
         config_file = open(config_path, 'w')
         config_file.close()
 
