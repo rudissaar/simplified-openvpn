@@ -52,9 +52,7 @@ class SimplifiedOpenVPN:
     @staticmethod
     def is_valid_hostname(hostname):
         if len(hostname) > 255:
-            print('False')
             return False
-        print('True')
         return True
 
     is_valid_domain = is_valid_hostname
@@ -67,11 +65,24 @@ class SimplifiedOpenVPN:
     def fetch_hostname_by_reverse_dns(ip):
         return socket.gethostbyaddr(ip)
 
+    def fetch_hostname_by_config_file(self):
+        if os.path.isfile(self.settings['server']['hostname_file']):
+            with open(self.settings['server']['hostname_file']) as hostname_file:
+                hostname = hostname_file.readline().rstrip()
+            hostname_file.close()
+
+            if self.is_valid_hostname(hostname):
+                return hostname
+
+        return None
+
     @property
     def hostname(self):
         hostname = self.settings['server']['hostname']
         if hostname is None:
-            return self.fetch_hostname_by_system()
+            hostname = self.fetch_hostname_by_config_file()
+
+        return hostname
 
     @hostname.setter
     def hostname(self, value):
