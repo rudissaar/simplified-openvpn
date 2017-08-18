@@ -215,13 +215,25 @@ class SimplifiedOpenVPN:
         destination = self.settings['client']['client_dir'] + 'ta.key'
         copyfile(source, destination)
 
-    def create_client_config_file(self, options=None):
-        config_path = self.settings['client']['client_dir'] + self.settings['server']['hostname'] + '.ovpn'
+    def create_client_config_options(self):
+        config_options = dict()
+        return config_options
+
+    def create_client_config_file(self):
+        config_template = self.settings['server']['server_dir'] + 'client.mustache'
+        if not os.path.isfile(config_template):
+           return False
+
+        renderer = pystache.Renderer()
+
+        config_options = self.create_client_config_options()
+        config_path = self.settings['client']['client_dir'] + self.hostname + '.ovpn'
         config_file = open(config_path, 'w')
+        config_file.write(renderer.render_path(config_template, config_options))
         config_file.close()
 
     def create_client_config_files(self):
-        self.create_client_config_file(self.settings['client'])
+        self.create_client_config_file()
 
     def create_client(self, pretty_name=None):
         if self.settings['client']['pretty_name'] is None:
