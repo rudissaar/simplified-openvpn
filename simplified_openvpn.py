@@ -28,7 +28,15 @@ class SimplifiedOpenVPN:
     settings['client']['pretty_name'] = None
 
     def __init__(self):
-        pass
+        self.load_config()
+
+    def load_config(self):
+        config_file_path = self.settings['server']['sovpn_config_file']
+        if os.path.isfile(config_file_path):
+            with open(config_file_path) as config_file:
+                data = json.load(config_file)
+                self.settings['server'] = {**self.settings['server'], **data['server']}
+                self.settings['client'] = {**self.settings['client'], **data['client']}
 
     @staticmethod
     def validate_ip(ip):
@@ -71,7 +79,6 @@ class SimplifiedOpenVPN:
             with open(self.settings['server']['sovpn_config_file']) as config_file:
                 data = json.load(config_file)
                 hostname = data['server']['hostname']
-            config_file.close()
 
             if self.is_valid_hostname(hostname):
                 return hostname
