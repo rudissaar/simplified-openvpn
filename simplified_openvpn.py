@@ -6,6 +6,7 @@ import socket
 import re
 import pystache
 import zipfile
+import json
 from shutil import copyfile
 from subprocess import run
 from slugify import slugify
@@ -21,7 +22,7 @@ class SimplifiedOpenVPN:
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
-    settings['server']['hostname_file'] = '/etc/openvpn/hostname'
+    settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
 
     settings['client']['pretty_name'] = None
@@ -66,10 +67,11 @@ class SimplifiedOpenVPN:
         return socket.gethostbyaddr(ip)
 
     def fetch_hostname_by_config_file(self):
-        if os.path.isfile(self.settings['server']['hostname_file']):
-            with open(self.settings['server']['hostname_file']) as hostname_file:
-                hostname = hostname_file.readline().rstrip()
-            hostname_file.close()
+        if os.path.isfile(self.settings['server']['sovpn_config_file']):
+            with open(self.settings['server']['sovpn_config_file']) as config_file:
+                data = json.load(config_file)
+                hostname = data['server']['hostname']
+            config_file.close()
 
             if self.is_valid_hostname(hostname):
                 return hostname
