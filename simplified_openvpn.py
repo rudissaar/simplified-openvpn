@@ -24,6 +24,7 @@ class SimplifiedOpenVPN:
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
+    settings['server']['protocol'] = 'udp'
 
     settings['client']['pretty_name'] = None
 
@@ -35,8 +36,10 @@ class SimplifiedOpenVPN:
         if os.path.isfile(config_file_path):
             with open(config_file_path) as config_file:
                 data = json.load(config_file)
-                self.settings['server'] = {**self.settings['server'], **data['server']}
-                self.settings['client'] = {**self.settings['client'], **data['client']}
+                if 'server' in data:
+                    self.settings['server'] = {**self.settings['server'], **data['server']}
+                if 'client' in data:
+                    self.settings['client'] = {**self.settings['client'], **data['client']}
 
     @staticmethod
     def validate_ip(ip):
@@ -170,6 +173,12 @@ class SimplifiedOpenVPN:
             exit(1)
 
     @property
+    def protocol(self):
+        if self.settings['server']['protocol'] is not None:
+            return self.settings['server']['protocol']
+        return None
+
+    @property
     def pretty_name(self):
         return self.settings['client']['pretty_name']
 
@@ -226,6 +235,7 @@ class SimplifiedOpenVPN:
 
     def create_client_config_options(self):
         config_options = dict()
+        config_options['protocol'] = self.protocol
         return config_options
 
     def create_client_config_file(self):
