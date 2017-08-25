@@ -178,6 +178,17 @@ class SimplifiedOpenVPN:
             return self.settings['server']['protocol']
         return None
 
+    @protocol.setter
+    def protocol(self, value):
+        protocols = ['udp', 'tcp']
+        if isinstance(value, str) and value.lower() in protocols:
+            self.settings['server']['protocol'] = value
+        else:
+            print('Value that you specified as protocol is invalid: ("' + value + ')')
+            print('Allowed values:')
+            for protocol in protocols:
+                print('>' + protocol, end=' ')
+
     @property
     def pretty_name(self):
         return self.settings['client']['pretty_name']
