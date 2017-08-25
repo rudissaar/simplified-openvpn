@@ -36,10 +36,9 @@ class SimplifiedOpenVPN:
         if os.path.isfile(config_file_path):
             with open(config_file_path) as config_file:
                 data = json.load(config_file)
-                if 'server' in data:
-                    self.settings['server'] = {**self.settings['server'], **data['server']}
-                if 'client' in data:
-                    self.settings['client'] = {**self.settings['client'], **data['client']}
+                for pool in data:
+                    for key, value in data[pool].items():
+                        setattr(self, key, value)
 
     @staticmethod
     def validate_ip(ip):
