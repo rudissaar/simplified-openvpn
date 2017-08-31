@@ -23,6 +23,7 @@ class SimplifiedOpenVPN:
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
+    settings['server']['ip'] = None
     settings['server']['protocol'] = 'udp'
 
     settings['client']['pretty_name'] = None
@@ -97,10 +98,17 @@ class SimplifiedOpenVPN:
     @hostname.setter
     def hostname(self, value):
         if not self.is_valid_hostname(value):
-            return False
-
+            print("Value that you specified as Hostname is invalid: (" + value + ")")
+            exit(1)
         self.settings['server']['hostname'] = value
-        return True
+
+    @property
+    def ip(self):
+        ip = self.settings['server']['ip']
+        if ip is None:
+            ip = self.get_external_ip()
+        if ip is not None:
+            return ip
 
     def server_install(self):
         hostname = self.fetch_hostname_by_system()
@@ -245,6 +253,8 @@ class SimplifiedOpenVPN:
     def create_client_config_options(self):
         config_options = dict()
         config_options['protocol'] = self.protocol
+        config_options['hostname'] = self.hostname
+        config_options['ip'] = self.ip
         return config_options
 
     def create_client_config_file(self):
