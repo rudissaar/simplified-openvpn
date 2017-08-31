@@ -18,7 +18,6 @@ class SimplifiedOpenVPN:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    # Defaults.
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
