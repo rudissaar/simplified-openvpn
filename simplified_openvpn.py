@@ -18,6 +18,7 @@ class SimplifiedOpenVPN:
     settings['server'] = dict()
     settings['client'] = dict()
 
+    settings['server']['binary'] = 'openvpn'
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
@@ -39,6 +40,23 @@ class SimplifiedOpenVPN:
                 for pool in data:
                     for key, value in data[pool].items():
                         setattr(self, key, value)
+
+    @staticmethod
+    def is_executable(file_path):
+        return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
+
+    def command_exists(self, program):
+        file_path, file_name = os.path.split(program)
+        if file_path:
+            if self.is_executable(file_path):
+                return True
+        else:
+            for path in os.environ['PATH'].split(os.pathsep):
+                path = path.strip('"')
+                file_path = os.path.join(path, program)
+                if self.is_executable(file_path):
+                    return True
+        return False
 
     @staticmethod
     def validate_ip(ip):
@@ -88,6 +106,15 @@ class SimplifiedOpenVPN:
         return None
 
     @property
+    def binary(self):
+        binary = self.settings['server']['binary']
+        return binary
+
+    @binary.setter
+    def binary(self, value):
+        self.settings['server']['binary'] = value
+
+    @property
     def hostname(self):
         hostname = self.settings['server']['hostname']
         if hostname is None:
@@ -111,6 +138,10 @@ class SimplifiedOpenVPN:
             return ip
 
     def server_install(self):
+        if not self.command_exists(self.binary):
+            print("Can't find binary for OpenVPN.")
+            exit(1)
+
         hostname = self.fetch_hostname_by_system()
         self.is_valid_domain(hostname)
 
