@@ -125,7 +125,7 @@ class SimplifiedOpenVPN:
     @hostname.setter
     def hostname(self, value):
         if not self.is_valid_hostname(value):
-            print("Value that you specified as Hostname is invalid: (" + value + ")")
+            print('Value that you specified as Hostname is invalid: (' + value + ')')
             exit(1)
         self.settings['server']['hostname'] = value
 
@@ -160,9 +160,9 @@ class SimplifiedOpenVPN:
         value = self.sanitize_path(value)
         if not os.path.isdir(value):
             return False
-        else:
-            self.settings[pool][key] = value
-            return True
+
+        self.settings[pool][key] = value
+        return True
 
     @property
     def server_dir(self):
@@ -275,7 +275,7 @@ class SimplifiedOpenVPN:
         source = self.settings['server']['easy_rsa_dir'] + 'keys/ca.crt'
         destination = self.settings['client']['client_dir'] + 'ca.crt'
         copyfile(source, destination)
-         
+
     def copy_ta_file(self):
         source = self.settings['server']['server_dir'] + 'ta.key'
         destination = self.settings['client']['client_dir'] + 'ta.key'
@@ -291,7 +291,7 @@ class SimplifiedOpenVPN:
     def create_client_config_file(self):
         config_template = self.settings['server']['server_dir'] + 'client.mustache'
         if not os.path.isfile(config_template):
-           return False
+            return False
 
         renderer = pystache.Renderer()
 
@@ -329,5 +329,4 @@ class SimplifiedOpenVPN:
 
         os.chdir(self.settings['client']['client_dir'])
 
-        self.create_client_config_files() 
-
+        self.create_client_config_files()
