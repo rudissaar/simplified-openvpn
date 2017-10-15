@@ -142,6 +142,9 @@ class SimplifiedOpenVPN:
             print("Can't find binary for OpenVPN.")
             exit(1)
 
+        os.chdir(self.settings['server']['server_dir'])
+        run(self.binary + ' --genkey --secret ta.key', shell=True)
+
         hostname = self.fetch_hostname_by_system()
         self.is_valid_domain(hostname)
 
