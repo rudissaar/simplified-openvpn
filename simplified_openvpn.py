@@ -25,6 +25,7 @@ class SimplifiedOpenVPN:
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
     settings['server']['ip'] = None
+    settings['server']['port'] = 1194
     settings['server']['protocol'] = 'udp'
 
     settings['client']['pretty_name'] = None
@@ -136,6 +137,14 @@ class SimplifiedOpenVPN:
             ip = self.get_external_ip()
         if ip is not None:
             return ip
+
+    @property
+    def port(self):
+        return self.settings['server']['port']
+
+    @port.setter
+    def port(self, value):
+        self.settings['server']['port'] = int(value)
 
     def server_install(self):
         if not self.command_exists(self.binary):
@@ -289,6 +298,7 @@ class SimplifiedOpenVPN:
         config_options['protocol'] = self.protocol
         config_options['hostname'] = self.hostname
         config_options['ip'] = self.ip
+        config_options['port'] = self.port
         return config_options
 
     def create_client_config_file(self):
