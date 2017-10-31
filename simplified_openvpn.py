@@ -28,6 +28,7 @@ class SimplifiedOpenVPN:
     settings['server']['port'] = 1194
     settings['server']['protocol'] = 'udp'
 
+    settings['client']['slug'] = None
     settings['client']['pretty_name'] = None
 
     def __init__(self):
@@ -146,6 +147,15 @@ class SimplifiedOpenVPN:
     def port(self, value):
         self.settings['server']['port'] = int(value)
 
+    @property
+    def slug(self):
+        return self.settings['client']['slug']
+
+    @slug.setter
+    def slug(self, value):
+        slug = slugify(value)
+        self.settings['client']['slug'] = slug
+
     def server_install(self):
         if not self.command_exists(self.binary):
             print("Can't find binary for OpenVPN.")
@@ -257,8 +267,11 @@ class SimplifiedOpenVPN:
             self.create_directory(value)
         status = self.handle_common_dir_setting('client_dir', value, 'client')
 
-    def client_dir_exists(self, slug, verbose=True):
-        if os.path.isdir(self.settings['server']['clients_dir'] + slug):
+    def client_dir_exists(self, verbose=True):
+        if self.slug is None or self.clients_dir is None:
+            return None
+
+        if os.path.isdir(self.clients_dir + self.slug):
             print('Client this with common name already exists.')
             return True
         return False
@@ -299,6 +312,7 @@ class SimplifiedOpenVPN:
         config_options['hostname'] = self.hostname
         config_options['ip'] = self.ip
         config_options['port'] = self.port
+        config_options['slug'] = self.slug
         return config_options
 
     def create_client_config_file(self):
@@ -321,25 +335,27 @@ class SimplifiedOpenVPN:
         if self.settings['client']['pretty_name'] is None:
             while pretty_name is None:
                 pretty_name = input('Enter Full Name for client: ').strip()
-                slug = slugify(pretty_name)
-                if self.client_dir_exists(slug) or pretty_name == '':
+                self.slug = pretty_name
+                if self.client_dir_exists(self.slug) or pretty_name == '':
                     pretty_name = None
 
             self.settings['client']['pretty_name'] = pretty_name
         else:
-            slug = slugify(self.settings['client']['pretty_name'])
-            if self.client_dir_exists(slug):
+            self.slug = self.settings['client']['pretty_name']
+            if self.client_dir_exists(self.slug):
                 exit(1)
 
         os.chdir(self.settings['server']['easy_rsa_dir'])
-        run('./build-key ' + slug + ' 1> /dev/null', shell=True)
+        run('./build-key ' + self.slug + ' 1> /dev/null', shell=True)
 
-        self.client_dir = slug
+        self.client_dir = self.slug
         self.create_pretty_name_file()
-        self.move_client_files(slug)
+        self.move_client_files(self.slug)
         self.copy_ca_file()
         self.copy_ta_file()
 
         os.chdir(self.settings['client']['client_dir'])
 
         self.create_client_config_files()
+
+
