@@ -32,7 +32,15 @@ class SimplifiedOpenVPN:
     settings['client']['pretty_name'] = None
 
     def __init__(self):
-        self.load_config()
+        if self.needs_setup():
+            self.setup()
+        else:
+            self.load_config()
+
+    def needs_setup(self):
+        if os.path.isfile(self.sovpn_config_file):
+            return True
+        return False
 
     def load_config(self):
         config_file_path = self.settings['server']['sovpn_config_file']
@@ -108,6 +116,14 @@ class SimplifiedOpenVPN:
         return None
 
     @property
+    def sovpn_config_file(self):
+        return self.settings['server']['sovpn_config_file']
+
+    @sovpn_config_file.setter
+    def sovpn_config_file(self, value):
+        self.settings['server']['sovpn_config_file'] = value
+
+    @property
     def binary(self):
         binary = self.settings['server']['binary']
         return binary
@@ -156,7 +172,7 @@ class SimplifiedOpenVPN:
         slug = slugify(value)
         self.settings['client']['slug'] = slug
 
-    def server_install(self):
+    def setup(self):
         if not self.command_exists(self.binary):
             print("Can't find binary for OpenVPN.")
             exit(1)
