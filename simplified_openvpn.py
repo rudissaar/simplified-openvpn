@@ -43,9 +43,9 @@ class SimplifiedOpenVPN:
         return False
 
     def load_config(self):
-        config_file_path = self.settings['server']['sovpn_config_file']
-        if os.path.isfile(config_file_path):
-            with open(config_file_path) as config_file:
+        '''Populate properties with values if config file exists.'''
+        if os.path.isfile(self.sovpn_config_file):
+            with open(self.sovpn_config_file) as config_file:
                 data = json.load(config_file)
                 for pool in data:
                     for key, value in data[pool].items():
