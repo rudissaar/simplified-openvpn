@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=R0904
 import os
 import sys
 import socket
@@ -38,6 +39,7 @@ class SimplifiedOpenVPN:
             self.load_config()
 
     def needs_setup(self):
+        '''Check if the script needs to run initial setup.'''
         if os.path.isfile(self.sovpn_config_file):
             return True
         return False
@@ -53,10 +55,13 @@ class SimplifiedOpenVPN:
 
     @staticmethod
     def is_executable(file_path):
+        '''Check if the file exists in path and is executable.'''
         return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
 
     def command_exists(self, program):
+        '''Check if the command exists.'''
         file_path, file_name = os.path.split(program)
+
         if file_path:
             if self.is_executable(file_path):
                 return True
@@ -64,27 +69,34 @@ class SimplifiedOpenVPN:
             for path in os.environ['PATH'].split(os.pathsep):
                 path = path.strip('"')
                 file_path = os.path.join(path, program)
+
                 if self.is_executable(file_path):
                     return True
         return False
 
     @staticmethod
-    def validate_ip(ip):
+    def validate_ipv4(ip):
+        '''Check if IP is valid IPv4 address.'''
         if type(ip) is str and len(ip.strip()) > 6:
             return True
         return False
 
-    def fetch_external_ip(self):
+    def fetch_external_ipv4(self):
+        '''Fetch external IPv4 address.'''
         ip = get('http://api.ipify.org').text
-        if self.validate_ip(ip):
+
+        if self.validate_ipv4(ip):
             return ip.strip()
         return None
 
-    def get_external_ip(self):
-        ip = self.fetch_external_ip()
+    def get_external_ipv4(self):
+        '''Return external IPv4 address, prompt for it if necessary.'''
+        ip = self.fetch_external_ipv4()
+
         while ip is None:
-            ip = input('Enter External IP for server: ').strip()
-            if not self.validate_ip(ip):
+            ip = input('Enter External IP address for server: ').strip()
+
+            if not self.validate_ipv4(ip):
                 ip = None
         return ip.strip()
 
@@ -151,7 +163,7 @@ class SimplifiedOpenVPN:
     def ip(self):
         ip = self.settings['server']['ip']
         if ip is None:
-            ip = self.get_external_ip()
+            ip = self.get_external_ipv4()
         if ip is not None:
             return ip
 
