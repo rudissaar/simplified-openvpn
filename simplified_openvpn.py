@@ -27,22 +27,22 @@ class SimplifiedOpenVPN:
     settings['server']['hostname'] = None
     settings['server']['ip'] = None
     settings['server']['port'] = 1194
-    settings['server']['protocol'] = 'udp'
+    settings['server']['protocol'] = None
 
     settings['client']['slug'] = None
     settings['client']['pretty_name'] = None
 
     def __init__(self):
         if self.needs_setup():
-            self.setup()
+            self.config_setup()
         else:
             self.load_config()
 
     def needs_setup(self):
         '''Check if the script needs to run initial setup.'''
         if os.path.isfile(self.sovpn_config_file):
-            return True
-        return False
+            return False
+        return True
 
     def load_config(self):
         '''Populate properties with values if config file exists.'''
@@ -184,12 +184,27 @@ class SimplifiedOpenVPN:
         slug = slugify(value)
         self.settings['client']['slug'] = slug
 
-    def setup(self):
+    def config_setup(self):
+        '''Set up settings for Simplified OpenVPN on current system.'''
+        config = dict()
+
+        sample_config_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
+        with open(sample_config_path) as sample_config:
+           config = json.load(sample_config) 
+
+        while self.protocol is None:
+            protocol = input('> Select protocol that you would like to use: (TCP|UDP) ')
+            config['server']['protocol'] = self.protocol = protocol
+
+        with open(self.server_dir + 'sovpn.json', 'w') as config_file:
+            config_file.write(json.dumps(config) + "\n")
+
+    def post_setup():
         if not self.command_exists(self.binary):
             print("Can't find binary for OpenVPN.")
             exit(1)
 
-        os.chdir(self.settings['server']['server_dir'])
+        os.chdir(self.server_dir)
         run(self.binary + ' --genkey --secret ta.key', shell=True)
 
         hostname = self.fetch_hostname_by_system()
@@ -268,11 +283,13 @@ class SimplifiedOpenVPN:
     @protocol.setter
     def protocol(self, value):
         protocols = ['udp', 'tcp']
+
         if isinstance(value, str) and value.lower() in protocols:
             self.settings['server']['protocol'] = value
         else:
             print('Value that you specified as protocol is invalid: ("' + value + ')')
             print('Allowed values:')
+
             for protocol in protocols:
                 print('>' + protocol, end=' ')
 
@@ -351,7 +368,7 @@ class SimplifiedOpenVPN:
         renderer = pystache.Renderer()
 
         config_options = self.create_client_config_options()
-        config_path = self.settings['client']['client_dir'] + self.hostname + '.ovpn'
+        config_path = self.client_dir + self.hostname + '.ovpn'
         config_file = open(config_path, 'w')
         config_file.write(renderer.render_path(config_template, config_options))
         config_file.close()
