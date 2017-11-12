@@ -102,7 +102,7 @@ class SimplifiedOpenVPN:
 
     @staticmethod
     def is_valid_hostname(hostname):
-        if len(hostname) > 255:
+        if len(hostname) > 255 or len(hostname) < 1:
             return False
         return True
 
@@ -127,6 +127,13 @@ class SimplifiedOpenVPN:
 
         return None
 
+    def get_suggestion_hostname(self):
+        '''Returns suggestion for hostname value.'''
+        suggestion = self.fetch_hostname_by_system() 
+        if suggestion is None:
+            suggestion = fetch_hostname_by_reversse_dns()
+        return suggestion
+            
     @property
     def sovpn_config_file(self):
         return self.settings['server']['sovpn_config_file']
@@ -146,7 +153,9 @@ class SimplifiedOpenVPN:
 
     @property
     def hostname(self):
+        '''Returns value of hostname property.'''
         hostname = self.settings['server']['hostname']
+
         if hostname is None:
             hostname = self.fetch_hostname_by_config_file()
 
@@ -154,10 +163,11 @@ class SimplifiedOpenVPN:
 
     @hostname.setter
     def hostname(self, value):
+        '''Assign new value to hostname property.'''
         if not self.is_valid_hostname(value):
             print('Value that you specified as Hostname is invalid: (' + value + ')')
-            exit(1)
-        self.settings['server']['hostname'] = value
+        else:
+            self.settings['server']['hostname'] = value
 
     @property
     def ip(self):
@@ -191,6 +201,16 @@ class SimplifiedOpenVPN:
         sample_config_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
         with open(sample_config_path) as sample_config:
            config = json.load(sample_config) 
+
+        suggestion = self.get_suggestion_hostname()
+        while self.hostname is None:
+            prompt = '> Enter hostname of your server: '
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            hostname = input(prompt)
+            if hostname.strip() == '':
+                hostname = suggestion
+            config['server']['hostname'] = self.hostname = hostname
 
         while self.protocol is None:
             protocol = input('> Select protocol that you would like to use: (TCP|UDP) ')
