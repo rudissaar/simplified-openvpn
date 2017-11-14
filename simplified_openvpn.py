@@ -129,11 +129,12 @@ class SimplifiedOpenVPN:
 
     def get_suggestion_hostname(self):
         '''Returns suggestion for hostname value.'''
-        suggestion = self.fetch_hostname_by_system() 
+        suggestion = self.fetch_hostname_by_system()
+
         if suggestion is None:
-            suggestion = fetch_hostname_by_reversse_dns()
+            suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-            
+
     @property
     def sovpn_config_file(self):
         return self.settings['server']['sovpn_config_file']
@@ -202,24 +203,45 @@ class SimplifiedOpenVPN:
         with open(sample_config_path) as sample_config:
            config = json.load(sample_config) 
 
+        '''Getting hostname for config.'''
         suggestion = self.get_suggestion_hostname()
+
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
+
             if suggestion:
                 prompt += '[' + suggestion + '] '
+
             hostname = input(prompt)
+
             if hostname.strip() == '':
                 hostname = suggestion
+
             config['server']['hostname'] = self.hostname = hostname
 
+        '''Getting protocol for config.'''
+        suggestion = None
+
+        if config['server']['protocol']:
+            suggestion = config['server']['protocol']
+
         while self.protocol is None:
-            protocol = input('> Select protocol that you would like to use: (TCP|UDP) ')
-            config['server']['protocol'] = self.protocol = protocol
+            prompt = '> Select protocol that you would like to use: (TCP|UDP) '
+
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+
+            protocol = input(prompt)
+
+            if protocol.strip() == '':
+                protocol = suggestion
+
+            config['server']['protocol'] = self.protocol = protocol.lower()
 
         with open(self.server_dir + 'sovpn.json', 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
 
-    def post_setup():
+    def post_setup(self):
         if not self.command_exists(self.binary):
             print("Can't find binary for OpenVPN.")
             exit(1)
@@ -302,16 +324,11 @@ class SimplifiedOpenVPN:
 
     @protocol.setter
     def protocol(self, value):
+        '''Assign new value to protcol property.'''
         protocols = ['udp', 'tcp']
 
         if isinstance(value, str) and value.lower() in protocols:
-            self.settings['server']['protocol'] = value
-        else:
-            print('Value that you specified as protocol is invalid: ("' + value + ')')
-            print('Allowed values:')
-
-            for protocol in protocols:
-                print('>' + protocol, end=' ')
+            self.settings['server']['protocol'] = value.lower()
 
     @property
     def pretty_name(self):

@@ -1,6 +1,6 @@
 {
     "server": {
         "hostname": null,
-        "protocol": "udp"
+        "protocol": "UDP"
     }
 }
