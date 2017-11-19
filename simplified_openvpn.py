@@ -26,7 +26,7 @@ class SimplifiedOpenVPN:
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
     settings['server']['ip'] = None
-    settings['server']['port'] = 1194
+    settings['server']['port'] = None
     settings['server']['protocol'] = None
 
     settings['client']['slug'] = None
@@ -238,6 +238,26 @@ class SimplifiedOpenVPN:
 
             config['server']['protocol'] = self.protocol = protocol.lower()
 
+        '''Getting port for config.'''
+        suggestion = None
+
+        if config['server']['port']:
+            suggestion = config['server']['port']
+    
+        while self.port is None:
+            prompt = '> Select port that you are using for for your server: '
+
+            if suggestion:
+                prompt += '[' + str(suggestion) + '] '
+
+            port = input(prompt)
+
+            if port.strip() == '':
+                port = suggestion
+                
+            config['server']['port'] = self.port = int(port)
+
+        '''Write config values to file.'''
         with open(self.server_dir + 'sovpn.json', 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
 
