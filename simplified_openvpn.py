@@ -417,21 +417,30 @@ class SimplifiedOpenVPN:
         config_options['slug'] = self.slug
         return config_options
 
-    def create_client_config_file(self):
-        config_template = self.settings['server']['server_dir'] + 'client.mustache'
+    def create_client_config_file(self, config_options, version=''):
+        '''Create single config file for client and write it to disk.'''
+        config_template = self.server_dir + 'client.mustache'
         if not os.path.isfile(config_template):
             return False
 
         renderer = pystache.Renderer()
 
-        config_options = self.create_client_config_options()
-        config_path = self.client_dir + self.hostname + '.ovpn'
+        config_path = self.client_dir + self.hostname
+        if version != '':
+            config_path += '-' + version
+        config_path += '.ovpn'
+
         config_file = open(config_path, 'w')
         config_file.write(renderer.render_path(config_template, config_options))
         config_file.close()
 
     def create_client_config_files(self):
-        self.create_client_config_file()
+        '''Create different config files for client.'''
+        config_options = self.create_client_config_options()
+        self.create_client_config_file(config_options)
+
+        config_options['inline'] = True
+        self.create_client_config_file(config_options, 'inline')
 
     def create_client(self, pretty_name=None):
         if self.settings['client']['pretty_name'] is None:
