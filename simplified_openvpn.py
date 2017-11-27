@@ -75,6 +75,19 @@ class SimplifiedOpenVPN:
         return False
 
     @staticmethod
+    def read_file_as_value(filename, verbose=False):
+        '''Reads contents of the file and returns it.'''
+        if not os.path.isfile(filename):
+            if verbose:
+                print("> File that you tried to read as value doesn't exist.")
+            return None
+
+        value = None
+        with open(filename) as content:
+            value = content.read().rstrip()
+        return value
+
+    @staticmethod
     def validate_ipv4(ip):
         '''Check if IP is valid IPv4 address.'''
         if type(ip) is str and len(ip.strip()) > 6:
@@ -417,8 +430,8 @@ class SimplifiedOpenVPN:
         config_options['slug'] = self.slug
         return config_options
 
-    def create_client_config_file(self, config_options, version=''):
-        '''Create single config file for client and write it to disk.'''
+    def create_client_config_file(self, config_options, flavour=''):
+        '''Creates a single config file for client and writes it to the disk.'''
         config_template = self.server_dir + 'client.mustache'
         if not os.path.isfile(config_template):
             return False
@@ -426,8 +439,8 @@ class SimplifiedOpenVPN:
         renderer = pystache.Renderer()
 
         config_path = self.client_dir + self.hostname
-        if version != '':
-            config_path += '-' + version
+        if flavour != '':
+            config_path += '-' + flavour
         config_path += '.ovpn'
 
         config_file = open(config_path, 'w')
@@ -435,11 +448,19 @@ class SimplifiedOpenVPN:
         config_file.close()
 
     def create_client_config_files(self):
-        '''Create different config files for client.'''
+        '''Create different flavours of client's config files.'''
+
+        '''Plain flavour.'''
         config_options = self.create_client_config_options()
         self.create_client_config_file(config_options)
 
+        '''Inline flavour.'''
         config_options['inline'] = True
+        config_options['ca'] = self.read_file_as_value(self.client_dir + 'ca.crt')
+        config_options['cert'] = self.read_file_as_value(self.client_dir + self.slug + '.crt')
+        config_options['key'] = self.read_file_as_value(self.client_dir + self.slug + '.key')
+        config_options['ta'] = self.read_file_as_value(self.client_dir + 'ta.key')
+
         self.create_client_config_file(config_options, 'inline')
 
     def create_client(self, pretty_name=None):
