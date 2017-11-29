@@ -115,10 +115,12 @@ class SimplifiedOpenVPN:
 
     @staticmethod
     def is_valid_hostname(hostname):
+        '''Checks if specified hostname matches rules and returns boolean.'''
         if len(hostname) > 255 or len(hostname) < 1:
             return False
         return True
 
+    '''Alias for is_valid_hostname.'''
     is_valid_domain = is_valid_hostname
 
     @staticmethod
@@ -169,7 +171,6 @@ class SimplifiedOpenVPN:
     def hostname(self):
         '''Returns value of hostname property.'''
         hostname = self.settings['server']['hostname']
-
         if hostname is None:
             hostname = self.fetch_hostname_by_config_file()
 
@@ -185,11 +186,11 @@ class SimplifiedOpenVPN:
 
     @property
     def ip(self):
+        '''Returns value of ip property.'''
         ip = self.settings['server']['ip']
         if ip is None:
             ip = self.get_external_ipv4()
-        if ip is not None:
-            return ip
+        return ip
 
     @property
     def port(self):
@@ -214,7 +215,7 @@ class SimplifiedOpenVPN:
 
         sample_config_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
         with open(sample_config_path) as sample_config:
-           config = json.load(sample_config) 
+           config = json.load(sample_config)
 
         '''Getting hostname for config.'''
         suggestion = self.get_suggestion_hostname()
@@ -256,7 +257,7 @@ class SimplifiedOpenVPN:
 
         if config['server']['port']:
             suggestion = config['server']['port']
-    
+
         while self.port is None:
             prompt = '> Select port that you are using for for your server: '
 
@@ -267,7 +268,7 @@ class SimplifiedOpenVPN:
 
             if port.strip() == '':
                 port = suggestion
-                
+
             config['server']['port'] = self.port = int(port)
 
         '''Write config values to file.'''
@@ -454,14 +455,23 @@ class SimplifiedOpenVPN:
         config_options = self.create_client_config_options()
         self.create_client_config_file(config_options)
 
+        '''Plain RHEL flavour.'''
+        config_options['rhel'] = True
+        self.create_client_config_file(config_options, 'rhel')
+        config_options['rhel'] = False
+
         '''Inline flavour.'''
         config_options['inline'] = True
         config_options['ca'] = self.read_file_as_value(self.client_dir + 'ca.crt')
         config_options['cert'] = self.read_file_as_value(self.client_dir + self.slug + '.crt')
         config_options['key'] = self.read_file_as_value(self.client_dir + self.slug + '.key')
         config_options['ta'] = self.read_file_as_value(self.client_dir + 'ta.key')
-
         self.create_client_config_file(config_options, 'inline')
+
+        '''Inline RHEL flavour.'''
+        config_options['rhel'] = True
+        self.create_client_config_file(config_options, 'inline-rhel')
+        config_options['rhel'] = False
 
     def create_client(self, pretty_name=None):
         if self.settings['client']['pretty_name'] is None:

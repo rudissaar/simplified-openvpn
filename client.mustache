@@ -6,12 +6,12 @@ remote {{ip}} {{port}}
 resolv-retry infinite
 nobind
 user nobody
-{{#rpm}}
+{{#rhel}}
 group nobody
-{{/rpm}}
-{{^rpm}}
+{{/rhel}}
+{{^rhel}}
 group nogroup
-{{/rpm}}
+{{/rhel}}
 persist-key
 persist-tun
 mute-replay-warnings
