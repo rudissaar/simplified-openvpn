@@ -450,17 +450,22 @@ class SimplifiedOpenVPN:
 
     def create_client_config_files(self):
         '''Create different flavours of client's config files.'''
-
-        '''Plain flavour.'''
         config_options = self.create_client_config_options()
+
+        '''Plain Windows flavour.'''
         self.create_client_config_file(config_options)
 
-        '''Plain RHEL flavour.'''
+        '''Plain Debian flavour.'''
+        config_options['deb'] = True
+        self.create_client_config_file(config_options, 'deb')
+        config_options['deb'] = False
+
+        '''Plain RedHat flavour.'''
         config_options['rhel'] = True
         self.create_client_config_file(config_options, 'rhel')
         config_options['rhel'] = False
 
-        '''Inline flavour.'''
+        '''Inline Windows flavour.'''
         config_options['inline'] = True
         config_options['ca'] = self.read_file_as_value(self.client_dir + 'ca.crt')
         config_options['cert'] = self.read_file_as_value(self.client_dir + self.slug + '.crt')
@@ -468,7 +473,12 @@ class SimplifiedOpenVPN:
         config_options['ta'] = self.read_file_as_value(self.client_dir + 'ta.key')
         self.create_client_config_file(config_options, 'inline')
 
-        '''Inline RHEL flavour.'''
+        '''Inline Debian flavour.'''
+        config_options['deb'] = True
+        self.create_client_config_file(config_options, 'inline-deb')
+        config_options['deb'] = False
+
+        '''Inline RedHat flavour.'''
         config_options['rhel'] = True
         self.create_client_config_file(config_options, 'inline-rhel')
         config_options['rhel'] = False

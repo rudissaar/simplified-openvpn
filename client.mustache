@@ -5,12 +5,13 @@ remote {{hostname}} {{port}}
 remote {{ip}} {{port}}
 resolv-retry infinite
 nobind
+{{#deb}}
 user nobody
-{{#rhel}}
-group nobody
-{{/rhel}}
-{{^rhel}}
 group nogroup
+{{/deb}}
+{{#rhel}}
+user nobody
+group nobody
 {{/rhel}}
 persist-key
 persist-tun
@@ -43,5 +44,5 @@ key-direction 1
 {{/inline}}
 cipher AES-256-CBC
 comp-lzo
-verb 3
+verb 0
 mute 20
