@@ -5,11 +5,11 @@ import os
 import sys
 import socket
 import re
-import pystache
 import zipfile
 import json
 from shutil import copyfile
 from subprocess import run
+import pystache
 from slugify import slugify
 from requests import get
 
@@ -215,7 +215,7 @@ class SimplifiedOpenVPN:
 
         sample_config_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
         with open(sample_config_path) as sample_config:
-           config = json.load(sample_config)
+            config = json.load(sample_config)
 
         '''Getting hostname for config.'''
         suggestion = self.get_suggestion_hostname()
@@ -429,10 +429,11 @@ class SimplifiedOpenVPN:
         config_options['ip'] = self.ip
         config_options['port'] = self.port
         config_options['slug'] = self.slug
+        config_options['inline'] = False
         return config_options
 
     def create_client_config_file(self, config_options, flavour=''):
-        '''Creates a single config file for client and writes it to the disk.'''
+        '''Creates a single config file/archive for client and writes it to the disk.'''
         config_template = self.server_dir + 'client.mustache'
         if not os.path.isfile(config_template):
             return False
@@ -447,6 +448,14 @@ class SimplifiedOpenVPN:
         config_file = open(config_path, 'w')
         config_file.write(renderer.render_path(config_template, config_options))
         config_file.close()
+
+        if not config_options['inline']:
+            with zipfile.ZipFile(config_path + '.zip', 'w') as config_zip:
+                config_zip.write(config_path)
+                config_zip.write(self.client_dir + 'ca.crt')
+                config_zip.write(self.client_dir + self.slug + '.crt')
+                config_zip.write(self.client_dir + self.slug + '.key')
+                config_zip.write(self.client_dir + 'ta.key')
 
     def create_client_config_files(self):
         '''Create different flavours of client's config files.'''
@@ -509,5 +518,3 @@ class SimplifiedOpenVPN:
         os.chdir(self.settings['client']['client_dir'])
 
         self.create_client_config_files()
-
-
