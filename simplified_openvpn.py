@@ -457,6 +457,9 @@ class SimplifiedOpenVPN:
                 config_zip.write(self.client_dir + self.slug + '.key')
                 config_zip.write(self.client_dir + 'ta.key')
 
+            '''Remove config file that you just zipped but keep certificates for others.'''
+            os.remove(config_path)
+
     def create_client_config_files(self):
         '''Create different flavours of client's config files.'''
         config_options = self.create_client_config_options()
@@ -491,6 +494,15 @@ class SimplifiedOpenVPN:
         config_options['rhel'] = True
         self.create_client_config_file(config_options, 'inline-rhel')
         config_options['rhel'] = False
+
+        '''Clean up.'''
+        self.cleanup_client_certificates()
+
+    def cleanup_client_certificates(self):
+        '''Cleans up client's certificates as they are no longer needed.'''
+        cert_files = [self.slug + '.crt', self.slug + '.key', 'ca.crt', 'ta.key']
+        for cert_file in cert_files:
+            os.remove(self.client_dir + cert_file)
 
     def create_client(self, pretty_name=None):
         if self.settings['client']['pretty_name'] is None:
