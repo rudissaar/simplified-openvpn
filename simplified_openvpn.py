@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=R0904
 import os
-import sys
 import socket
-import re
 import zipfile
 import json
 from shutil import copyfile
@@ -90,7 +88,7 @@ class SimplifiedOpenVPN:
     @staticmethod
     def validate_ipv4(ip):
         '''Check if IP is valid IPv4 address.'''
-        if type(ip) is str and len(ip.strip()) > 6:
+        if isinstance(ip, str) and len(ip.strip()) > 6:
             return True
         return False
 
@@ -127,9 +125,13 @@ class SimplifiedOpenVPN:
     def fetch_hostname_by_system():
         return socket.getfqdn()
 
-    @staticmethod
-    def fetch_hostname_by_reverse_dns(ip):
-        return socket.gethostbyaddr(ip)
+    def fetch_hostname_by_reverse_dns(self, ip=None):
+        '''Tries to fetch hostname by reverse DNS lookup and returns it if possible.'''
+        if ip is None:
+            ip = self.fetch_external_ipv4()
+        if ip:
+            return socket.gethostbyaddr(ip)
+        return None
 
     def fetch_hostname_by_config_file(self):
         if os.path.isfile(self.settings['server']['sovpn_config_file']):
@@ -288,16 +290,19 @@ class SimplifiedOpenVPN:
 
     @staticmethod
     def sanitize_path(path):
+        '''Makes sure that path are ending with forward slash.'''
         if not path.endswith('/'):
             path = path + '/'
         return path
 
     @staticmethod
     def create_directory(value, mode=0o700):
+        '''Creates new directory on filesystem.'''
         if not os.path.exists(value):
             os.makedirs(value, mode)
 
     def handle_common_dir_setting(self, key, value, pool='server'):
+        '''Checks if directory can be assigned to property and sets it if possible.'''
         value = self.sanitize_path(value)
         if not os.path.isdir(value):
             return False
@@ -307,10 +312,12 @@ class SimplifiedOpenVPN:
 
     @property
     def server_dir(self):
+        '''Returns directory of OpenVPN server.'''
         return self.settings['server']['server_dir']
 
     @server_dir.setter
     def server_dir(self, value):
+        '''Assings new value to server_dir property if possible.'''
         status = self.handle_common_dir_setting('server_dir', value)
         if not status:
             print("Value that you specified as Server's directory is invalid: (" + value + ")")
@@ -321,10 +328,12 @@ class SimplifiedOpenVPN:
 
     @property
     def easy_rsa_dir(self):
+        '''Returns directory of EasyRSA utils.'''
         return self.settings['server']['easy_rsa_dir']
 
     @easy_rsa_dir.setter
     def easy_rsa_dir(self, value):
+        '''Assings new value to easy_rsa_dir property if possible.'''
         status = self.handle_common_dir_setting('easy_rsa_dir', value)
         if not status:
             print("Value that you specified as directory for Easy RSA is invalid: (" + value + ")")
