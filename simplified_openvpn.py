@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # pylint: disable=R0904
+
+'''Management interface for OpenVPN Community Edition.'''
+
 import os
 import socket
 import zipfile
@@ -13,6 +16,7 @@ from requests import get
 
 
 class SimplifiedOpenVPN:
+    '''Main class that takes care of managing OpenVPN on your server.'''
     settings = dict()
     settings['server'] = dict()
     settings['client'] = dict()
@@ -23,7 +27,8 @@ class SimplifiedOpenVPN:
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
-    settings['server']['ip'] = None
+    settings['server']['ipv4'] = None
+    settings['server']['ipv6'] = None
     settings['server']['port'] = None
     settings['server']['protocol'] = None
 
@@ -31,6 +36,7 @@ class SimplifiedOpenVPN:
     settings['client']['pretty_name'] = None
 
     def __init__(self):
+        '''Loads config if possible, else asks you to generate config.'''
         if self.needs_setup():
             self.config_setup()
         else:
@@ -58,7 +64,7 @@ class SimplifiedOpenVPN:
 
     def command_exists(self, program):
         '''Check if the command exists.'''
-        file_path, file_name = os.path.split(program)
+        file_path = os.path.split(program)[0]
 
         if file_path:
             if self.is_executable(file_path):
@@ -86,30 +92,31 @@ class SimplifiedOpenVPN:
         return value
 
     @staticmethod
-    def validate_ipv4(ip):
+    def validate_ipv4(ipv4):
         '''Check if IP is valid IPv4 address.'''
-        if isinstance(ip, str) and len(ip.strip()) > 6:
+        if isinstance(ipv4, str) and len(ipv4.strip()) > 6:
             return True
         return False
 
     def fetch_external_ipv4(self):
         '''Fetch external IPv4 address.'''
-        ip = get('http://api.ipify.org').text
+        ipv4 = get('http://api.ipify.org').text
 
-        if self.validate_ipv4(ip):
-            return ip.strip()
+        if self.validate_ipv4(ipv4):
+            return ipv4.strip()
         return None
 
     def get_external_ipv4(self):
         '''Return external IPv4 address, prompt for it if necessary.'''
-        ip = self.fetch_external_ipv4()
+        ipv4 = self.fetch_external_ipv4()
 
-        while ip is None:
-            ip = input('Enter External IP address for server: ').strip()
+        while ipv4 is None:
+            ipv4 = input('Enter External IP address for server: ').strip()
 
-            if not self.validate_ipv4(ip):
-                ip = None
-        return ip.strip()
+            if not self.validate_ipv4(ipv4):
+                return None
+
+        return ipv4.strip()
 
     @staticmethod
     def is_valid_hostname(hostname):
@@ -118,22 +125,21 @@ class SimplifiedOpenVPN:
             return False
         return True
 
-    '''Alias for is_valid_hostname.'''
-    is_valid_domain = is_valid_hostname
-
     @staticmethod
     def fetch_hostname_by_system():
+        '''Fetches Fully Qualified Domain Name from system.'''
         return socket.getfqdn()
 
-    def fetch_hostname_by_reverse_dns(self, ip=None):
+    def fetch_hostname_by_reverse_dns(self, ipv4=None):
         '''Tries to fetch hostname by reverse DNS lookup and returns it if possible.'''
-        if ip is None:
-            ip = self.fetch_external_ipv4()
-        if ip:
-            return socket.gethostbyaddr(ip)
+        if ipv4 is None:
+            ipv4 = self.fetch_external_ipv4()
+        if ipv4:
+            return socket.gethostbyaddr(ipv4)
         return None
 
     def fetch_hostname_by_config_file(self):
+        '''Tries to fetch hostname from sovpn config file.'''
         if os.path.isfile(self.settings['server']['sovpn_config_file']):
             with open(self.settings['server']['sovpn_config_file']) as config_file:
                 data = json.load(config_file)
@@ -187,12 +193,12 @@ class SimplifiedOpenVPN:
             self.settings['server']['hostname'] = value
 
     @property
-    def ip(self):
-        '''Returns value of ip property.'''
-        ip = self.settings['server']['ip']
-        if ip is None:
-            ip = self.get_external_ipv4()
-        return ip
+    def ipv4(self):
+        '''Returns value of ipv4 property.'''
+        ipv4 = self.settings['server']['ipv4']
+        if ipv4 is None:
+            ipv4 = self.get_external_ipv4()
+        return ipv4
 
     @property
     def port(self):
@@ -286,7 +292,7 @@ class SimplifiedOpenVPN:
         run(self.binary + ' --genkey --secret ta.key', shell=True)
 
         hostname = self.fetch_hostname_by_system()
-        self.is_valid_domain(hostname)
+        self.is_valid_hostname(hostname)
 
     @staticmethod
     def sanitize_path(path):
@@ -435,7 +441,7 @@ class SimplifiedOpenVPN:
         config_options = dict()
         config_options['protocol'] = self.protocol
         config_options['hostname'] = self.hostname
-        config_options['ip'] = self.ip
+        config_options['ipv4'] = self.ipv4
         config_options['port'] = self.port
         config_options['slug'] = self.slug
         config_options['inline'] = False

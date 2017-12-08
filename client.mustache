@@ -2,7 +2,12 @@ client
 dev tun
 proto {{protocol}}
 remote {{hostname}} {{port}}
-remote {{ip}} {{port}}
+{{#ipv4}}
+remote {{ipv4}} {{port}}
+{{/ipv4}}
+{{#ipv6}}
+remote {{ipv6}} {{port}}
+{{/ipv6}}
 resolv-retry infinite
 nobind
 {{#deb}}
