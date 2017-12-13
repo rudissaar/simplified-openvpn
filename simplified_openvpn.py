@@ -227,15 +227,11 @@ class SimplifiedOpenVPN:
 
         '''Getting hostname for config.'''
         suggestion = self.get_suggestion_hostname()
-
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
-
             if suggestion:
                 prompt += '[' + suggestion + '] '
-
             hostname = input(prompt)
-
             if hostname.strip() == '':
                 hostname = suggestion
 
@@ -243,18 +239,13 @@ class SimplifiedOpenVPN:
 
         '''Getting protocol for config.'''
         suggestion = None
-
         if config['server']['protocol']:
             suggestion = config['server']['protocol']
-
         while self.protocol is None:
             prompt = '> Select protocol that you would like to use: (TCP|UDP) '
-
             if suggestion:
                 prompt += '[' + suggestion + '] '
-
             protocol = input(prompt)
-
             if protocol.strip() == '':
                 protocol = suggestion
 
@@ -262,18 +253,13 @@ class SimplifiedOpenVPN:
 
         '''Getting port for config.'''
         suggestion = None
-
         if config['server']['port']:
             suggestion = config['server']['port']
-
         while self.port is None:
             prompt = '> Select port that you are using for for your server: '
-
             if suggestion:
                 prompt += '[' + str(suggestion) + '] '
-
             port = input(prompt)
-
             if port.strip() == '':
                 port = suggestion
 
@@ -282,6 +268,9 @@ class SimplifiedOpenVPN:
         '''Write config values to file.'''
         with open(self.server_dir + 'sovpn.json', 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
+
+        client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/client.mustache'
+        copyfile(client_template_path, self.server_dir + 'client.mustache')
 
     def post_setup(self):
         if not self.command_exists(self.binary):
