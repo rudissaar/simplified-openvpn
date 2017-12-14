@@ -273,6 +273,7 @@ class SimplifiedOpenVPN:
         copyfile(client_template_path, self.server_dir + 'client.mustache')
 
     def post_setup(self):
+        '''Setup block that can be runned after config_setup.'''
         if not self.command_exists(self.binary):
             print("Can't find binary for OpenVPN.")
             exit(1)
@@ -339,10 +340,12 @@ class SimplifiedOpenVPN:
 
     @property
     def clients_dir(self):
+        '''Returns path of directory that contains files for all users.'''
         return self.settings['server']['clients_dir']
 
     @clients_dir.setter
     def clients_dir(self, value, create=False):
+        '''Assigns new value to clients_dir property if possible.'''
         if create:
             self.create_directory(value)
 
@@ -356,13 +359,14 @@ class SimplifiedOpenVPN:
 
     @property
     def protocol(self):
+        '''Returns value of protocol property.'''
         if self.settings['server']['protocol'] is not None:
             return self.settings['server']['protocol']
         return None
 
     @protocol.setter
     def protocol(self, value):
-        '''Assign new value to protcol property.'''
+        '''Assigns new value to protcol property.'''
         protocols = ['udp', 'tcp']
 
         if isinstance(value, str) and value.lower() in protocols:
@@ -370,18 +374,22 @@ class SimplifiedOpenVPN:
 
     @property
     def pretty_name(self):
+        '''Returns value of pretty_name property.'''
         return self.settings['client']['pretty_name']
 
     @pretty_name.setter
     def pretty_name(self, value):
+        '''Assigns new value to pretty_name property.'''
         self.settings['client']['pretty_name'] = value.strip()
 
     @property
     def client_dir(self):
+        '''Returns value of client_dir property.'''
         return self.settings['client']['client_dir']
 
     @client_dir.setter
     def client_dir(self, slug, create=True):
+        '''Assigns new value to clients_dir property.'''
         value = self.settings['server']['clients_dir'] + slug
         if create:
             self.create_directory(value)

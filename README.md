@@ -1,4 +1,6 @@
 # simplified-openvpn
 
 ### Requirements
-* Python 3.x
+* python-3.x
+* python-pystache
+* python-slugify
