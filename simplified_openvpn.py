@@ -13,9 +13,10 @@ from subprocess import run
 import pystache
 from slugify import slugify
 from requests import get
+from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 
 
-class SimplifiedOpenVPN:
+class SimplifiedOpenvpn:
     '''Main class that takes care of managing OpenVPN on your server.'''
     settings = dict()
     settings['server'] = dict()
@@ -77,19 +78,6 @@ class SimplifiedOpenVPN:
                 if self.is_executable(file_path):
                     return True
         return False
-
-    @staticmethod
-    def read_file_as_value(filename, verbose=False):
-        '''Reads contents of the file and returns it.'''
-        if not os.path.isfile(filename):
-            if verbose:
-                print("> File that you tried to read as value doesn't exist.")
-            return None
-
-        value = None
-        with open(filename) as content:
-            value = content.read().rstrip()
-        return value
 
     @staticmethod
     def validate_ipv4(ipv4):
@@ -269,7 +257,7 @@ class SimplifiedOpenVPN:
         with open(self.server_dir + 'sovpn.json', 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
 
-        client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/client.mustache'
+        client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/templates/client.mustache'
         copyfile(client_template_path, self.server_dir + 'client.mustache')
 
     def post_setup(self):
@@ -491,10 +479,10 @@ class SimplifiedOpenVPN:
 
         '''Inline Windows flavour.'''
         config_options['inline'] = True
-        config_options['ca'] = self.read_file_as_value(self.client_dir + 'ca.crt')
-        config_options['cert'] = self.read_file_as_value(self.client_dir + self.slug + '.crt')
-        config_options['key'] = self.read_file_as_value(self.client_dir + self.slug + '.key')
-        config_options['ta'] = self.read_file_as_value(self.client_dir + 'ta.key')
+        config_options['ca'] = _helper.read_file_as_value(self.client_dir + 'ca.crt')
+        config_options['cert'] = _helper.read_file_as_value(self.client_dir + self.slug + '.crt')
+        config_options['key'] = _helper.read_file_as_value(self.client_dir + self.slug + '.key')
+        config_options['ta'] = _helper.read_file_as_value(self.client_dir + 'ta.key')
         self.create_client_config_file(config_options, 'inline')
 
         '''Inline Debian flavour.'''
