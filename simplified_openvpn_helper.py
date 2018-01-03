@@ -17,3 +17,16 @@ class SimplifiedOpenvpnHelper:
         with open(filename) as content:
             value = content.read().rstrip()
         return value
+
+    @staticmethod
+    def create_directory(value, mode=0o700):
+        """Creates new directory on filesystem."""
+        if not os.path.exists(value):
+            os.makedirs(value, mode)
+
+    @staticmethod
+    def sanitize_path(path):
+        """Makes sure that path are ending with forward slash."""
+        if not path.endswith('/'):
+            path = path + '/'
+        return path

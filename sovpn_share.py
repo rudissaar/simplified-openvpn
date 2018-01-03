@@ -3,12 +3,16 @@
 
 import os
 import pystache
+import sqlite3
 from flask import Flask
 from flask import send_file
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
+from simplified_openvpn_config import SimplifiedOpenvpnConfig
+
+_config = SimplifiedOpenvpnConfig()
 
 app = Flask(__name__)
-path = '/root/openvpn-clients/'
+path = _config.clients_dir
 
 @app.route('/<slug>')
 def client_page(slug):

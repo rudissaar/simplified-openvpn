@@ -6,6 +6,7 @@
 
 import os
 import json
+from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 
 class SimplifiedOpenvpnConfig:
     """Class that contains shareable configuration."""
@@ -13,6 +14,7 @@ class SimplifiedOpenvpnConfig:
     settings['server'] = dict()
     settings['client'] = dict()
 
+    settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['sovpn_share_salt'] = None
 
@@ -44,6 +46,29 @@ class SimplifiedOpenvpnConfig:
                 for key, value in data[pool].items():
                     if key in dir(self):
                         setattr(self, key, value)
+    @property
+    def clients_dir(self):
+        """Returns path of directory that contains files for all users."""
+        return self.settings['server']['clients_dir']
+
+    @clients_dir.setter
+    def clients_dir(self, value, create=False):
+        """Assigns new value to clients_dir property if possible."""
+        if create:
+            _helper.create_directory(value)
+
+        if not os.path.isdir(value):
+            if create:
+                 _helper.create_directory(value)
+
+        status = os.path.isdir(value)
+
+        if not status:
+            print("Value that you specified as directory for clients is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
 
     @property
     def sovpn_config_file(self):

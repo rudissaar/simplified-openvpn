@@ -14,6 +14,7 @@ import pystache
 from slugify import slugify
 from requests import get
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
+from simplified_openvpn_config import SimplifiedOpenvpnConfig
 
 
 class SimplifiedOpenvpn:
@@ -23,7 +24,6 @@ class SimplifiedOpenvpn:
     settings['client'] = dict()
 
     settings['server']['binary'] = 'openvpn'
-    settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['server_dir'] = '/etc/openvpn/'
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
@@ -42,6 +42,7 @@ class SimplifiedOpenvpn:
             self.config_setup()
         else:
             self.load_config()
+            self._config = SimplifiedOpenvpnConfig()
 
     def needs_setup(self):
         '''Check if the script needs to run initial setup.'''
@@ -327,25 +328,6 @@ class SimplifiedOpenvpn:
             exit(1)
 
     @property
-    def clients_dir(self):
-        '''Returns path of directory that contains files for all users.'''
-        return self.settings['server']['clients_dir']
-
-    @clients_dir.setter
-    def clients_dir(self, value, create=False):
-        '''Assigns new value to clients_dir property if possible.'''
-        if create:
-            self.create_directory(value)
-
-        status = self.handle_common_dir_setting('clients_dir', value)
-        if not status:
-            print("Value that you specified as directory for clients is invalid: (" + value + ")")
-            print('Make sure that the value you gave meets following requirements:')
-            print('> Does the directory really exist in your filesystem?')
-            print('> The specified directory has write and execute permissions.')
-            exit(1)
-
-    @property
     def protocol(self):
         '''Returns value of protocol property.'''
         if self.settings['server']['protocol'] is not None:
@@ -377,17 +359,17 @@ class SimplifiedOpenvpn:
 
     @client_dir.setter
     def client_dir(self, slug, create=True):
-        '''Assigns new value to clients_dir property.'''
-        value = self.settings['server']['clients_dir'] + slug
+        '''Assigns new value to client_dir property.'''
+        value = self._config.clients_dir + slug
         if create:
             self.create_directory(value)
         status = self.handle_common_dir_setting('client_dir', value, 'client')
 
     def client_dir_exists(self, verbose=True):
-        if self.slug is None or self.clients_dir is None:
+        if self.slug is None or self._config.clients_dir is None:
             return None
 
-        if os.path.isdir(self.clients_dir + self.slug):
+        if os.path.isdir(self._config.clients_dir + self.slug):
             print('Client this with common name already exists.')
             return True
         return False
