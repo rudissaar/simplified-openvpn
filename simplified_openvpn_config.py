@@ -14,6 +14,8 @@ class SimplifiedOpenvpnConfig:
     settings['server'] = dict()
     settings['client'] = dict()
 
+    settings['server']['server_dir'] = '/etc/openvpn/'
+    settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['sovpn_share_salt'] = None
@@ -46,6 +48,45 @@ class SimplifiedOpenvpnConfig:
                 for key, value in data[pool].items():
                     if key in dir(self):
                         setattr(self, key, value)
+
+    @property
+    def server_dir(self):
+        """Returns directory of OpenVPN server."""
+        return self.settings['server']['server_dir']
+
+    @server_dir.setter
+    def server_dir(self, value):
+        """Assings new value to server_dir property if possible."""
+        status = os.path.isdir(value)
+
+        if not status:
+            print("Value that you specified as Server's directory is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
+
+        self.settings['server']['server_dir'] = _helper.sanitize_path(value)
+
+    @property
+    def easy_rsa_dir(self):
+        """Returns directory of EasyRSA utils."""
+        return self.settings['server']['easy_rsa_dir']
+
+    @easy_rsa_dir.setter
+    def easy_rsa_dir(self, value):
+        """Assings new value to easy_rsa_dir property if possible."""
+        status = os.path.isdir(value)
+
+        if not status:
+            print("Value that you specified as directory for Easy RSA is invalid: (" + value + ")")
+            print('Make sure that the value you gave meets following requirements:')
+            print('> Does the directory really exist in your filesystem?')
+            print('> The specified directory has write and execute permissions.')
+            exit(1)
+
+        self.settings['server']['easy_rsa_dir'] = _helper.sanitize_path(value)
+
     @property
     def clients_dir(self):
         """Returns path of directory that contains files for all users."""
@@ -59,7 +100,7 @@ class SimplifiedOpenvpnConfig:
 
         if not os.path.isdir(value):
             if create:
-                 _helper.create_directory(value)
+                _helper.create_directory(value)
 
         status = os.path.isdir(value)
 
@@ -69,6 +110,8 @@ class SimplifiedOpenvpnConfig:
             print('> Does the directory really exist in your filesystem?')
             print('> The specified directory has write and execute permissions.')
             exit(1)
+
+        self.settings['server']['clients_dir'] = _helper.sanitize_path(value)
 
     @property
     def sovpn_config_file(self):

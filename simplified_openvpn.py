@@ -24,9 +24,6 @@ class SimplifiedOpenvpn:
     settings['client'] = dict()
 
     settings['server']['binary'] = 'openvpn'
-    settings['server']['server_dir'] = '/etc/openvpn/'
-    settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
-    settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
     settings['server']['ipv6'] = None
@@ -38,6 +35,7 @@ class SimplifiedOpenvpn:
 
     def __init__(self):
         '''Loads config if possible, else asks you to generate config.'''
+        self._config = SimplifiedOpenvpnConfig()
         if self.needs_setup():
             self.config_setup()
         else:
@@ -46,14 +44,14 @@ class SimplifiedOpenvpn:
 
     def needs_setup(self):
         '''Check if the script needs to run initial setup.'''
-        if os.path.isfile(self.sovpn_config_file):
+        if os.path.isfile(self._config.sovpn_config_file):
             return False
         return True
 
     def load_config(self):
         '''Populate properties with values if config file exists.'''
-        if os.path.isfile(self.sovpn_config_file):
-            with open(self.sovpn_config_file) as config_file:
+        if os.path.isfile(self._config.sovpn_config_file):
+            with open(self._config.sovpn_config_file) as config_file:
                 data = json.load(config_file)
                 for pool in data:
                     for key, value in data[pool].items():
@@ -129,8 +127,8 @@ class SimplifiedOpenvpn:
 
     def fetch_hostname_by_config_file(self):
         '''Tries to fetch hostname from sovpn config file.'''
-        if os.path.isfile(self.settings['server']['sovpn_config_file']):
-            with open(self.settings['server']['sovpn_config_file']) as config_file:
+        if os.path.isfile(self._config.sovpn_config_file):
+            with open(self._config.sovpn_config_file) as config_file:
                 data = json.load(config_file)
                 hostname = data['server']['hostname']
 
@@ -146,14 +144,6 @@ class SimplifiedOpenvpn:
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def sovpn_config_file(self):
-        return self.settings['server']['sovpn_config_file']
-
-    @sovpn_config_file.setter
-    def sovpn_config_file(self, value):
-        self.settings['server']['sovpn_config_file'] = value
 
     @property
     def binary(self):
@@ -255,11 +245,11 @@ class SimplifiedOpenvpn:
             config['server']['port'] = self.port = int(port)
 
         '''Write config values to file.'''
-        with open(self.server_dir + 'sovpn.json', 'w') as config_file:
+        with open(self._config.server_dir + 'sovpn.json', 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
 
         client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/templates/client.mustache'
-        copyfile(client_template_path, self.server_dir + 'client.mustache')
+        copyfile(client_template_path, self._config.server_dir + 'client.mustache')
 
     def post_setup(self):
         '''Setup block that can be runned after config_setup.'''
@@ -267,8 +257,7 @@ class SimplifiedOpenvpn:
             print("Can't find binary for OpenVPN.")
             exit(1)
 
-        os.chdir(self.server_dir)
-        run(self.binary + ' --genkey --secret ta.key', shell=True)
+        run(self.binary + ' --genkey --secret ta.key', shell=True, cwd=self._config.server_dir)
 
         hostname = self.fetch_hostname_by_system()
         self.is_valid_hostname(hostname)
@@ -294,38 +283,6 @@ class SimplifiedOpenvpn:
 
         self.settings[pool][key] = value
         return True
-
-    @property
-    def server_dir(self):
-        '''Returns directory of OpenVPN server.'''
-        return self.settings['server']['server_dir']
-
-    @server_dir.setter
-    def server_dir(self, value):
-        '''Assings new value to server_dir property if possible.'''
-        status = self.handle_common_dir_setting('server_dir', value)
-        if not status:
-            print("Value that you specified as Server's directory is invalid: (" + value + ")")
-            print('Make sure that the value you gave meets following requirements:')
-            print('> Does the directory really exist in your filesystem?')
-            print('> The specified directory has write and execute permissions.')
-            exit(1)
-
-    @property
-    def easy_rsa_dir(self):
-        '''Returns directory of EasyRSA utils.'''
-        return self.settings['server']['easy_rsa_dir']
-
-    @easy_rsa_dir.setter
-    def easy_rsa_dir(self, value):
-        '''Assings new value to easy_rsa_dir property if possible.'''
-        status = self.handle_common_dir_setting('easy_rsa_dir', value)
-        if not status:
-            print("Value that you specified as directory for Easy RSA is invalid: (" + value + ")")
-            print('Make sure that the value you gave meets following requirements:')
-            print('> Does the directory really exist in your filesystem?')
-            print('> The specified directory has write and execute permissions.')
-            exit(1)
 
     @property
     def protocol(self):
@@ -390,17 +347,17 @@ class SimplifiedOpenvpn:
     def move_client_files(self, slug):
         client_files = [slug + '.crt', slug + '.key']
         for client_file in client_files:
-            source = self.settings['server']['easy_rsa_dir'] + 'keys/' + client_file
+            source = self._config.easy_rsa_dir + 'keys/' + client_file
             destination = self.settings['client']['client_dir'] + client_file
             os.rename(source, destination)
 
     def copy_ca_file(self):
-        source = self.settings['server']['easy_rsa_dir'] + 'keys/ca.crt'
+        source = self._config.easy_rsa_dir + 'keys/ca.crt'
         destination = self.settings['client']['client_dir'] + 'ca.crt'
         copyfile(source, destination)
 
     def copy_ta_file(self):
-        source = self.settings['server']['server_dir'] + 'ta.key'
+        source = self._config.server_dir + 'ta.key'
         destination = self.settings['client']['client_dir'] + 'ta.key'
         copyfile(source, destination)
 
@@ -416,7 +373,7 @@ class SimplifiedOpenvpn:
 
     def create_client_config_file(self, config_options, flavour=''):
         '''Creates a single config file/archive for client and writes it to the disk.'''
-        config_template = self.server_dir + 'client.mustache'
+        config_template = self._config.server_dir + 'client.mustache'
         if not os.path.isfile(config_template):
             return False
 
@@ -500,7 +457,7 @@ class SimplifiedOpenvpn:
             if self.client_dir_exists(self.slug):
                 exit(1)
 
-        os.chdir(self.settings['server']['easy_rsa_dir'])
+        os.chdir(self._config.easy_rsa_dir)
         run('./build-key ' + self.slug + ' 1> /dev/null', shell=True)
 
         self.client_dir = self.slug
