@@ -19,6 +19,7 @@ class SimplifiedOpenvpnConfig:
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['sovpn_share_salt'] = None
+    settings['server']['hostname'] = None
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
@@ -132,3 +133,30 @@ class SimplifiedOpenvpnConfig:
     def sovpn_share_salt(self, value):
         """Assigns new valie to sovpn_share_salt property."""
         self.settings['server']['sovpn_share_salt'] = value
+
+    @property
+    def hostname(self):
+        """Returns value of hostname property."""
+        hostname = self.settings['server']['hostname']
+        if hostname is None:
+            hostname = self.fetch_hostname_by_config_file()
+        return hostname
+
+    @hostname.setter
+    def hostname(self, value):
+        """Assigns new value to hostname property."""
+        if not _helper.is_valid_hostname(value):
+            print('Value that you specified as Hostname is invalid: (' + value + ')')
+        else:
+            self.settings['server']['hostname'] = value
+
+    def fetch_hostname_by_config_file(self):
+        """Tries to fetch hostname from sovpn config file."""
+        if os.path.isfile(self.sovpn_config_file):
+            with open(self.sovpn_config_file) as config_file:
+                data = json.load(config_file)
+                hostname = data['server']['hostname']
+
+            if _helper.is_valid_hostname(hostname):
+                return hostname
+        return None

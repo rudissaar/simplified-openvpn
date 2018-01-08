@@ -23,7 +23,6 @@ class SimplifiedOpenvpn:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
     settings['server']['ipv6'] = None
     settings['server']['port'] = None
@@ -84,18 +83,6 @@ class SimplifiedOpenvpn:
             return socket.gethostbyaddr(ipv4)
         return None
 
-    def fetch_hostname_by_config_file(self):
-        '''Tries to fetch hostname from sovpn config file.'''
-        if os.path.isfile(self._config.sovpn_config_file):
-            with open(self._config.sovpn_config_file) as config_file:
-                data = json.load(config_file)
-                hostname = data['server']['hostname']
-
-            if _helper.is_valid_hostname(hostname):
-                return hostname
-
-        return None
-
     def get_suggestion_hostname(self):
         '''Returns suggestion for hostname value.'''
         suggestion = _helper.fetch_hostname_by_system()
@@ -103,23 +90,6 @@ class SimplifiedOpenvpn:
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def hostname(self):
-        '''Returns value of hostname property.'''
-        hostname = self.settings['server']['hostname']
-        if hostname is None:
-            hostname = self.fetch_hostname_by_config_file()
-
-        return hostname
-
-    @hostname.setter
-    def hostname(self, value):
-        '''Assign new value to hostname property.'''
-        if not _helper.is_valid_hostname(value):
-            print('Value that you specified as Hostname is invalid: (' + value + ')')
-        else:
-            self.settings['server']['hostname'] = value
 
     @property
     def ipv4(self):
@@ -303,7 +273,7 @@ class SimplifiedOpenvpn:
     def create_client_config_options(self):
         config_options = dict()
         config_options['protocol'] = self.protocol
-        config_options['hostname'] = self.hostname
+        config_options['hostname'] = self._config.hostname
         config_options['ipv4'] = self.ipv4
         config_options['port'] = self.port
         config_options['slug'] = self.slug
