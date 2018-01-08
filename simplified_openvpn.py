@@ -23,7 +23,6 @@ class SimplifiedOpenvpn:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    settings['server']['binary'] = 'openvpn'
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
     settings['server']['ipv6'] = None
@@ -57,39 +56,11 @@ class SimplifiedOpenvpn:
                     for key, value in data[pool].items():
                         setattr(self, key, value)
 
-    @staticmethod
-    def is_executable(file_path):
-        '''Check if the file exists in path and is executable.'''
-        return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
-
-    def command_exists(self, program):
-        '''Check if the command exists.'''
-        file_path = os.path.split(program)[0]
-
-        if file_path:
-            if self.is_executable(file_path):
-                return True
-        else:
-            for path in os.environ['PATH'].split(os.pathsep):
-                path = path.strip('"')
-                file_path = os.path.join(path, program)
-
-                if self.is_executable(file_path):
-                    return True
-        return False
-
-    @staticmethod
-    def validate_ipv4(ipv4):
-        '''Check if IP is valid IPv4 address.'''
-        if isinstance(ipv4, str) and len(ipv4.strip()) > 6:
-            return True
-        return False
-
     def fetch_external_ipv4(self):
         '''Fetch external IPv4 address.'''
         ipv4 = get('http://api.ipify.org').text
 
-        if self.validate_ipv4(ipv4):
+        if _helper.validate_ipv4(ipv4):
             return ipv4.strip()
         return None
 
@@ -100,22 +71,10 @@ class SimplifiedOpenvpn:
         while ipv4 is None:
             ipv4 = input('Enter External IP address for server: ').strip()
 
-            if not self.validate_ipv4(ipv4):
+            if not _helper.validate_ipv4(ipv4):
                 return None
 
         return ipv4.strip()
-
-    @staticmethod
-    def is_valid_hostname(hostname):
-        '''Checks if specified hostname matches rules and returns boolean.'''
-        if len(hostname) > 255 or len(hostname) < 1:
-            return False
-        return True
-
-    @staticmethod
-    def fetch_hostname_by_system():
-        '''Fetches Fully Qualified Domain Name from system.'''
-        return socket.getfqdn()
 
     def fetch_hostname_by_reverse_dns(self, ipv4=None):
         '''Tries to fetch hostname by reverse DNS lookup and returns it if possible.'''
@@ -132,27 +91,18 @@ class SimplifiedOpenvpn:
                 data = json.load(config_file)
                 hostname = data['server']['hostname']
 
-            if self.is_valid_hostname(hostname):
+            if _helper.is_valid_hostname(hostname):
                 return hostname
 
         return None
 
     def get_suggestion_hostname(self):
         '''Returns suggestion for hostname value.'''
-        suggestion = self.fetch_hostname_by_system()
+        suggestion = _helper.fetch_hostname_by_system()
 
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def binary(self):
-        binary = self.settings['server']['binary']
-        return binary
-
-    @binary.setter
-    def binary(self, value):
-        self.settings['server']['binary'] = value
 
     @property
     def hostname(self):
@@ -166,7 +116,7 @@ class SimplifiedOpenvpn:
     @hostname.setter
     def hostname(self, value):
         '''Assign new value to hostname property.'''
-        if not self.is_valid_hostname(value):
+        if not _helper.is_valid_hostname(value):
             print('Value that you specified as Hostname is invalid: (' + value + ')')
         else:
             self.settings['server']['hostname'] = value
@@ -250,17 +200,6 @@ class SimplifiedOpenvpn:
 
         client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/templates/client.mustache'
         copyfile(client_template_path, self._config.server_dir + 'client.mustache')
-
-    def post_setup(self):
-        '''Setup block that can be runned after config_setup.'''
-        if not self.command_exists(self.binary):
-            print("Can't find binary for OpenVPN.")
-            exit(1)
-
-        run(self.binary + ' --genkey --secret ta.key', shell=True, cwd=self._config.server_dir)
-
-        hostname = self.fetch_hostname_by_system()
-        self.is_valid_hostname(hostname)
 
     @staticmethod
     def sanitize_path(path):
