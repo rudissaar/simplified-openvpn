@@ -330,10 +330,10 @@ class SimplifiedOpenvpn:
         if not config_options['inline']:
             with zipfile.ZipFile(config_path + '.zip', 'w') as config_zip:
                 config_zip.write(config_path)
-                config_zip.write(self.client_dir + 'ca.crt')
-                config_zip.write(self.client_dir + self.slug + '.crt')
-                config_zip.write(self.client_dir + self.slug + '.key')
-                config_zip.write(self.client_dir + 'ta.key')
+                config_zip.write(self.client_dir + 'ca.crt', 'ca.crt')
+                config_zip.write(self.client_dir + self.slug + '.crt', self.slug + '.crt')
+                config_zip.write(self.client_dir + self.slug + '.key', self.slug + '.key')
+                config_zip.write(self.client_dir + 'ta.key', 'ta.key')
 
             '''Remove config file that you just zipped but keep certificates for others.'''
             os.remove(config_path)
