@@ -20,6 +20,7 @@ class SimplifiedOpenvpnConfig:
     settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['sovpn_share_salt'] = None
     settings['server']['hostname'] = None
+    settings['server']['ipv4'] = None
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
@@ -160,3 +161,13 @@ class SimplifiedOpenvpnConfig:
             if _helper.is_valid_hostname(hostname):
                 return hostname
         return None
+
+    @property
+    def ipv4(self):
+        """Returns value of IPv4 property."""
+        ipv4 = self.settings['server']['ipv4']
+        if ipv4 is None:
+            value = _helper.fetch_external_ipv4()
+            if _helper.is_valid_ipv4(value):
+                ipv4 = value
+        return ipv4

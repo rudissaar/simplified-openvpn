@@ -6,6 +6,8 @@
 
 import os
 import socket
+from requests import get
+
 
 class SimplifiedOpenvpnHelper:
     """Class that contains shareable helper methods."""
@@ -37,7 +39,7 @@ class SimplifiedOpenvpnHelper:
         return path
 
     @staticmethod
-    def validate_ipv4(ipv4):
+    def is_valid_ipv4(ipv4):
         """Check if IP is valid IPv4 address."""
         if isinstance(ipv4, str) and len(ipv4.strip()) > 6:
             return True
@@ -54,3 +56,11 @@ class SimplifiedOpenvpnHelper:
     def fetch_hostname_by_system():
         """Fetches Fully Qualified Domain Name from system."""
         return socket.getfqdn()
+
+    @staticmethod
+    def fetch_external_ipv4():
+        """Fetches and returns external IPv4 address."""
+        ipv4 = get('http://api.ipify.org').text
+        if ipv4:
+            return ipv4.strip()
+        return None

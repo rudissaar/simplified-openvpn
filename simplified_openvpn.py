@@ -12,7 +12,6 @@ from shutil import copyfile
 from subprocess import run
 import pystache
 from slugify import slugify
-from requests import get
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 
@@ -23,8 +22,6 @@ class SimplifiedOpenvpn:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    settings['server']['ipv4'] = None
-    settings['server']['ipv6'] = None
     settings['server']['port'] = None
     settings['server']['protocol'] = None
 
@@ -55,26 +52,6 @@ class SimplifiedOpenvpn:
                     for key, value in data[pool].items():
                         setattr(self, key, value)
 
-    def fetch_external_ipv4(self):
-        '''Fetch external IPv4 address.'''
-        ipv4 = get('http://api.ipify.org').text
-
-        if _helper.validate_ipv4(ipv4):
-            return ipv4.strip()
-        return None
-
-    def get_external_ipv4(self):
-        '''Return external IPv4 address, prompt for it if necessary.'''
-        ipv4 = self.fetch_external_ipv4()
-
-        while ipv4 is None:
-            ipv4 = input('Enter External IP address for server: ').strip()
-
-            if not _helper.validate_ipv4(ipv4):
-                return None
-
-        return ipv4.strip()
-
     def fetch_hostname_by_reverse_dns(self, ipv4=None):
         '''Tries to fetch hostname by reverse DNS lookup and returns it if possible.'''
         if ipv4 is None:
@@ -90,14 +67,6 @@ class SimplifiedOpenvpn:
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def ipv4(self):
-        '''Returns value of ipv4 property.'''
-        ipv4 = self.settings['server']['ipv4']
-        if ipv4 is None:
-            ipv4 = self.get_external_ipv4()
-        return ipv4
 
     @property
     def port(self):
@@ -134,7 +103,7 @@ class SimplifiedOpenvpn:
             if hostname.strip() == '':
                 hostname = suggestion
 
-            config['server']['hostname'] = self.hostname = hostname
+            #config['server']['hostname'] = self.hostname = hostname
 
         '''Getting protocol for config.'''
         suggestion = None
@@ -274,7 +243,7 @@ class SimplifiedOpenvpn:
         config_options = dict()
         config_options['protocol'] = self.protocol
         config_options['hostname'] = self._config.hostname
-        config_options['ipv4'] = self.ipv4
+        config_options['ipv4'] = self._config.ipv4
         config_options['port'] = self.port
         config_options['slug'] = self.slug
         config_options['inline'] = False
@@ -288,7 +257,7 @@ class SimplifiedOpenvpn:
 
         renderer = pystache.Renderer()
 
-        config_path = self.client_dir + self.hostname
+        config_path = self.client_dir + self._config.hostname
         if flavour != '':
             config_path += '-' + flavour
         config_path += '.ovpn'
