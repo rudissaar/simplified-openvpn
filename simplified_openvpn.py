@@ -18,12 +18,6 @@ from simplified_openvpn_config import SimplifiedOpenvpnConfig
 
 class SimplifiedOpenvpn:
     '''Main class that takes care of managing OpenVPN on your server.'''
-    settings = dict()
-    settings['server'] = dict()
-    settings['client'] = dict()
-
-    settings['client']['slug'] = None
-    settings['client']['pretty_name'] = None
 
     def __init__(self):
         '''Loads config if possible, else asks you to generate config.'''
@@ -64,15 +58,6 @@ class SimplifiedOpenvpn:
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def slug(self):
-        return self.settings['client']['slug']
-
-    @slug.setter
-    def slug(self, value):
-        slug = slugify(value)
-        self.settings['client']['slug'] = slug
 
     def config_setup(self):
         '''Set up settings for Simplified OpenVPN on current system.'''
@@ -129,82 +114,43 @@ class SimplifiedOpenvpn:
         client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/templates/client.mustache'
         copyfile(client_template_path, self._config.server_dir + 'client.mustache')
 
-    @staticmethod
-    def sanitize_path(path):
-        '''Makes sure that path are ending with forward slash.'''
-        if not path.endswith('/'):
-            path = path + '/'
-        return path
-
-    def handle_common_dir_setting(self, key, value, pool='server'):
-        '''Checks if directory can be assigned to property and sets it if possible.'''
-        value = self.sanitize_path(value)
-        if not os.path.isdir(value):
-            return False
-
-        self.settings[pool][key] = value
-        return True
-
-    @property
-    def pretty_name(self):
-        '''Returns value of pretty_name property.'''
-        return self.settings['client']['pretty_name']
-
-    @pretty_name.setter
-    def pretty_name(self, value):
-        '''Assigns new value to pretty_name property.'''
-        self.settings['client']['pretty_name'] = value.strip()
-
-    @property
-    def client_dir(self):
-        '''Returns value of client_dir property.'''
-        return self.settings['client']['client_dir']
-
-    @client_dir.setter
-    def client_dir(self, slug, create=True):
-        '''Assigns new value to client_dir property.'''
-        value = self._config.clients_dir + slug
-        if create:
-            _helper.create_directory(value)
-        status = self.handle_common_dir_setting('client_dir', value, 'client')
-
     def client_dir_exists(self, verbose=True):
-        if self.slug is None or self._config.clients_dir is None:
+        if self._config.slug is None or self._config.clients_dir is None:
             return None
 
-        if os.path.isdir(self._config.clients_dir + self.slug):
+        if os.path.isdir(self._config.clients_dir + self._config.slug):
             print('Client this with common name already exists.')
             return True
         return False
 
     def create_pretty_name_file(self):
-        if not self.settings['client']['client_dir']:
+        if not self._config.client_dir:
             return False
 
-        if self.settings['client']['pretty_name']:
-            file_path = self.settings['client']['client_dir'] + 'pretty-name.txt'
+        if self._config.pretty_name:
+            file_path = self._config.client_dir + 'pretty-name.txt'
             file_handle = open(file_path, 'w')
-            file_handle.write(self.settings['client']['pretty_name'] + "\n")
+            file_handle.write(self._config.pretty_name + "\n")
             file_handle.close()
             return True
 
         return False
 
-    def move_client_files(self, slug):
-        client_files = [slug + '.crt', slug + '.key']
+    def move_client_files(self):
+        client_files = [self._config.slug + '.crt', self._config.slug + '.key']
         for client_file in client_files:
             source = self._config.easy_rsa_dir + 'keys/' + client_file
-            destination = self.settings['client']['client_dir'] + client_file
+            destination = self._config.client_dir + client_file
             os.rename(source, destination)
 
     def copy_ca_file(self):
         source = self._config.easy_rsa_dir + 'keys/ca.crt'
-        destination = self.settings['client']['client_dir'] + 'ca.crt'
+        destination = self._config.client_dir + 'ca.crt'
         copyfile(source, destination)
 
     def copy_ta_file(self):
         source = self._config.server_dir + 'ta.key'
-        destination = self.settings['client']['client_dir'] + 'ta.key'
+        destination = self._config.client_dir + 'ta.key'
         copyfile(source, destination)
 
     def create_client_config_options(self):
@@ -213,7 +159,7 @@ class SimplifiedOpenvpn:
         config_options['hostname'] = self._config.hostname
         config_options['ipv4'] = self._config.ipv4
         config_options['port'] = self._config.port
-        config_options['slug'] = self.slug
+        config_options['slug'] = self._config.slug
         config_options['inline'] = False
         return config_options
 
@@ -225,7 +171,7 @@ class SimplifiedOpenvpn:
 
         renderer = pystache.Renderer()
 
-        config_path = self.client_dir + self._config.hostname
+        config_path = self._config.client_dir + self._config.hostname
         if flavour != '':
             config_path += '-' + flavour
         config_path += '.ovpn'
@@ -237,10 +183,10 @@ class SimplifiedOpenvpn:
         if not config_options['inline']:
             with zipfile.ZipFile(config_path + '.zip', 'w') as config_zip:
                 config_zip.write(config_path)
-                config_zip.write(self.client_dir + 'ca.crt', 'ca.crt')
-                config_zip.write(self.client_dir + self.slug + '.crt', self.slug + '.crt')
-                config_zip.write(self.client_dir + self.slug + '.key', self.slug + '.key')
-                config_zip.write(self.client_dir + 'ta.key', 'ta.key')
+                config_zip.write(self._config.client_dir + 'ca.crt', 'ca.crt')
+                config_zip.write(self._config.client_dir + self._config.slug + '.crt', self._config.slug + '.crt')
+                config_zip.write(self._config.client_dir + self._config.slug + '.key', self._config.slug + '.key')
+                config_zip.write(self._config.client_dir + 'ta.key', 'ta.key')
 
             '''Remove config file that you just zipped but keep certificates for others.'''
             os.remove(config_path)
@@ -264,10 +210,10 @@ class SimplifiedOpenvpn:
 
         '''Inline Windows flavour.'''
         config_options['inline'] = True
-        config_options['ca'] = _helper.read_file_as_value(self.client_dir + 'ca.crt')
-        config_options['cert'] = _helper.read_file_as_value(self.client_dir + self.slug + '.crt')
-        config_options['key'] = _helper.read_file_as_value(self.client_dir + self.slug + '.key')
-        config_options['ta'] = _helper.read_file_as_value(self.client_dir + 'ta.key')
+        config_options['ca'] = _helper.read_file_as_value(self._config.client_dir + 'ca.crt')
+        config_options['cert'] = _helper.read_file_as_value(self._config.client_dir + self._config.slug + '.crt')
+        config_options['key'] = _helper.read_file_as_value(self._config.client_dir + self._config.slug + '.key')
+        config_options['ta'] = _helper.read_file_as_value(self._config.client_dir + 'ta.key')
         self.create_client_config_file(config_options, 'inline')
 
         '''Inline Debian flavour.'''
@@ -285,33 +231,33 @@ class SimplifiedOpenvpn:
 
     def cleanup_client_certificates(self):
         '''Cleans up client's certificates as they are no longer needed.'''
-        cert_files = [self.slug + '.crt', self.slug + '.key', 'ca.crt', 'ta.key']
+        cert_files = [self._config.slug + '.crt', self._config.slug + '.key', 'ca.crt', 'ta.key']
         for cert_file in cert_files:
-            os.remove(self.client_dir + cert_file)
+            os.remove(self._config.client_dir + cert_file)
 
     def create_client(self, pretty_name=None):
-        if self.settings['client']['pretty_name'] is None:
+        if self._config.pretty_name is None:
             while pretty_name is None:
                 pretty_name = input('Enter Full Name for client: ').strip()
-                self.slug = pretty_name
-                if self.client_dir_exists(self.slug) or pretty_name == '':
+                self._config.slug = pretty_name
+                if self.client_dir_exists(self._config.slug) or pretty_name == '':
                     pretty_name = None
 
-            self.settings['client']['pretty_name'] = pretty_name
+            self._config.pretty_name = pretty_name
         else:
-            self.slug = self.settings['client']['pretty_name']
-            if self.client_dir_exists(self.slug):
+            self._config.slug = self._config.pretty_name
+            if self.client_dir_exists(self._config.slug):
                 exit(1)
 
         os.chdir(self._config.easy_rsa_dir)
-        run('./build-key ' + self.slug + ' 1> /dev/null', shell=True)
+        run('./build-key ' + self._config.slug + ' 1> /dev/null', shell=True)
 
-        self.client_dir = self.slug
+        self._config.client_dir = self._config.slug
         self.create_pretty_name_file()
-        self.move_client_files(self.slug)
+        self.move_client_files()
         self.copy_ca_file()
         self.copy_ta_file()
 
-        os.chdir(self.settings['client']['client_dir'])
+        os.chdir(self._config.client_dir)
 
         self.create_client_config_files()

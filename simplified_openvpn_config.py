@@ -6,6 +6,7 @@
 
 import os
 import json
+from slugify import slugify
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 
 class SimplifiedOpenvpnConfig:
@@ -23,6 +24,10 @@ class SimplifiedOpenvpnConfig:
     settings['server']['ipv4'] = None
     settings['server']['port'] = None
     settings['server']['protocol'] = None
+
+    settings['client']['slug'] = None
+    settings['client']['pretty_name'] = None
+    settings['client']['client_dir'] = None
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
@@ -191,8 +196,42 @@ class SimplifiedOpenvpnConfig:
 
     @protocol.setter
     def protocol(self, value):
-        '''Assigns new value to protcol property.'''
+        """Assigns new value to protcol property."""
         protocols = ['udp', 'tcp']
 
         if isinstance(value, str) and value.lower() in protocols:
             self.settings['server']['protocol'] = value.lower()
+
+    @property
+    def slug(self):
+        """Returns value of slug property."""
+        return self.settings['client']['slug']
+
+    @slug.setter
+    def slug(self, value):
+        """Assigns new value to slug property."""
+        slug = slugify(value)
+        self.settings['client']['slug'] = slug
+
+    @property
+    def pretty_name(self):
+        """Returns value of pretty_name property."""
+        return self.settings['client']['pretty_name']
+
+    @pretty_name.setter
+    def pretty_name(self, value):
+        """Assigns new value to pretty_name property."""
+        self.settings['client']['pretty_name'] = value.strip()
+
+    @property
+    def client_dir(self):
+        """Returns value of client_dir property."""
+        return self.settings['client']['client_dir']
+
+    @client_dir.setter
+    def client_dir(self, create=True):
+        """Assigns new value to client_dir property and creates directory for it if needed."""
+        value = self.clients_dir + self.slug
+        if create:
+            _helper.create_directory(value)
+        self.settings['client']['client_dir'] = _helper.sanitize_path(value)
