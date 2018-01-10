@@ -22,9 +22,6 @@ class SimplifiedOpenvpn:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    settings['server']['port'] = None
-    settings['server']['protocol'] = None
-
     settings['client']['slug'] = None
     settings['client']['pretty_name'] = None
 
@@ -67,14 +64,6 @@ class SimplifiedOpenvpn:
         if suggestion is None:
             suggestion = self.fetch_hostname_by_reverse_dns()
         return suggestion
-
-    @property
-    def port(self):
-        return self.settings['server']['port']
-
-    @port.setter
-    def port(self, value):
-        self.settings['server']['port'] = int(value)
 
     @property
     def slug(self):
@@ -147,12 +136,6 @@ class SimplifiedOpenvpn:
             path = path + '/'
         return path
 
-    @staticmethod
-    def create_directory(value, mode=0o700):
-        '''Creates new directory on filesystem.'''
-        if not os.path.exists(value):
-            os.makedirs(value, mode)
-
     def handle_common_dir_setting(self, key, value, pool='server'):
         '''Checks if directory can be assigned to property and sets it if possible.'''
         value = self.sanitize_path(value)
@@ -161,21 +144,6 @@ class SimplifiedOpenvpn:
 
         self.settings[pool][key] = value
         return True
-
-    @property
-    def protocol(self):
-        '''Returns value of protocol property.'''
-        if self.settings['server']['protocol'] is not None:
-            return self.settings['server']['protocol']
-        return None
-
-    @protocol.setter
-    def protocol(self, value):
-        '''Assigns new value to protcol property.'''
-        protocols = ['udp', 'tcp']
-
-        if isinstance(value, str) and value.lower() in protocols:
-            self.settings['server']['protocol'] = value.lower()
 
     @property
     def pretty_name(self):
@@ -197,7 +165,7 @@ class SimplifiedOpenvpn:
         '''Assigns new value to client_dir property.'''
         value = self._config.clients_dir + slug
         if create:
-            self.create_directory(value)
+            _helper.create_directory(value)
         status = self.handle_common_dir_setting('client_dir', value, 'client')
 
     def client_dir_exists(self, verbose=True):
@@ -241,10 +209,10 @@ class SimplifiedOpenvpn:
 
     def create_client_config_options(self):
         config_options = dict()
-        config_options['protocol'] = self.protocol
+        config_options['protocol'] = self._config.protocol
         config_options['hostname'] = self._config.hostname
         config_options['ipv4'] = self._config.ipv4
-        config_options['port'] = self.port
+        config_options['port'] = self._config.port
         config_options['slug'] = self.slug
         config_options['inline'] = False
         return config_options

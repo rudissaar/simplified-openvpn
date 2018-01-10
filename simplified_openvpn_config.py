@@ -21,6 +21,8 @@ class SimplifiedOpenvpnConfig:
     settings['server']['sovpn_share_salt'] = None
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
+    settings['server']['port'] = None
+    settings['server']['protocol'] = None
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
@@ -122,7 +124,7 @@ class SimplifiedOpenvpnConfig:
 
     @sovpn_config_file.setter
     def sovpn_config_file(self, value):
-        """Assigns new valie to sovpn_config_file property."""
+        """Assigns new value to sovpn_config_file property."""
         self.settings['server']['sovpn_config_file'] = value
 
     @property
@@ -132,7 +134,7 @@ class SimplifiedOpenvpnConfig:
 
     @sovpn_share_salt.setter
     def sovpn_share_salt(self, value):
-        """Assigns new valie to sovpn_share_salt property."""
+        """Assigns new value to sovpn_share_salt property."""
         self.settings['server']['sovpn_share_salt'] = value
 
     @property
@@ -171,3 +173,26 @@ class SimplifiedOpenvpnConfig:
             if _helper.is_valid_ipv4(value):
                 ipv4 = value
         return ipv4
+
+    @property
+    def port(self):
+        """Returns value of port property."""
+        return self.settings['server']['port']
+
+    @port.setter
+    def port(self, value):
+        """Assigns new value to port property."""
+        self.settings['server']['port'] = int(value)
+
+    @property
+    def protocol(self):
+        """Returns value of protocol property."""
+        return self.settings['server']['protocol']
+
+    @protocol.setter
+    def protocol(self, value):
+        '''Assigns new value to protcol property.'''
+        protocols = ['udp', 'tcp']
+
+        if isinstance(value, str) and value.lower() in protocols:
+            self.settings['server']['protocol'] = value.lower()
