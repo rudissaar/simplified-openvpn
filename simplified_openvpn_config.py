@@ -51,7 +51,6 @@ class SimplifiedOpenvpnConfig:
         with open(sample) as sample_config:
             config = json.load(sample_config)
 
-        """Getting hostname for config."""
         suggestion = _suggest.hostname()
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '

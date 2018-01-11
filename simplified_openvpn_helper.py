@@ -6,6 +6,7 @@
 
 import os
 import socket
+import inspect
 from requests import get
 
 
@@ -13,8 +14,13 @@ class SimplifiedOpenvpnHelper:
     """Class that contains shareable helper methods."""
 
     @staticmethod
+    def current_method():
+        """Returns name of the current method."""
+        return inspect.stack()[1][3]
+
+    @staticmethod
     def read_file_as_value(filename, verbose=False):
-        '''Reads contents of the file and returns it.'''
+        """Reads contents of the file and returns it."""
         if not os.path.isfile(filename):
             if verbose:
                 print("> File that you tried to read as value doesn't exist.")
