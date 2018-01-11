@@ -8,6 +8,7 @@ import os
 import json
 from slugify import slugify
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
+from simplified_openvpn_suggest import SimplifiedOpenvpnSuggest as _suggest
 
 class SimplifiedOpenvpnConfig:
     """Class that contains shareable configuration."""
@@ -31,11 +32,10 @@ class SimplifiedOpenvpnConfig:
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
-        self.load_config()
-        #if self.needs_setup():
-            #self.config_setup()
-        #else:
-            #self.load_config()
+        if self.needs_setup():
+            self.config_setup()
+        else:
+            self.load_config()
 
     def needs_setup(self):
         """Check if the script needs to run initial setup."""
@@ -45,7 +45,23 @@ class SimplifiedOpenvpnConfig:
 
     def config_setup(self):
         """Set up settings for Simplified OpenVPN on current system."""
-        pass
+        sample = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
+        config = dict()
+
+        with open(sample) as sample_config:
+            config = json.load(sample_config)
+
+        """Getting hostname for config."""
+        suggestion = _suggest.hostname()
+        while self.hostname is None:
+            prompt = '> Enter hostname of your server: '
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            hostname = input(prompt)
+            if hostname.strip() == '':
+                hostname = suggestion
+
+            config['server']['hostname'] = self.hostname = hostname
 
     def load_config(self):
         """Populate properties with values if config file exists."""

@@ -58,6 +58,15 @@ class SimplifiedOpenvpnHelper:
         return socket.getfqdn()
 
     @staticmethod
+    def fetch_hostname_by_reverse_dns(ipv4=None):
+        """Tries to fetch hostname by reverse DNS lookup and returns it if possible."""
+        if ipv4 is None:
+            ipv4 = SimplifiedOpenvpnHelper.fetch_external_ipv4()
+        if ipv4:
+            return socket.gethostbyaddr(ipv4)
+        return None
+
+    @staticmethod
     def fetch_external_ipv4():
         """Fetches and returns external IPv4 address."""
         ipv4 = get('http://api.ipify.org').text

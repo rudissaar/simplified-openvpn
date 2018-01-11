@@ -22,42 +22,12 @@ class SimplifiedOpenvpn:
     def __init__(self):
         '''Loads config if possible, else asks you to generate config.'''
         self._config = SimplifiedOpenvpnConfig()
-        if self.needs_setup():
-            self.config_setup()
-        else:
-            self.load_config()
-            self._config = SimplifiedOpenvpnConfig()
 
     def needs_setup(self):
         '''Check if the script needs to run initial setup.'''
         if os.path.isfile(self._config.sovpn_config_file):
             return False
         return True
-
-    def load_config(self):
-        '''Populate properties with values if config file exists.'''
-        if os.path.isfile(self._config.sovpn_config_file):
-            with open(self._config.sovpn_config_file) as config_file:
-                data = json.load(config_file)
-                for pool in data:
-                    for key, value in data[pool].items():
-                        setattr(self, key, value)
-
-    def fetch_hostname_by_reverse_dns(self, ipv4=None):
-        '''Tries to fetch hostname by reverse DNS lookup and returns it if possible.'''
-        if ipv4 is None:
-            ipv4 = self.fetch_external_ipv4()
-        if ipv4:
-            return socket.gethostbyaddr(ipv4)
-        return None
-
-    def get_suggestion_hostname(self):
-        '''Returns suggestion for hostname value.'''
-        suggestion = _helper.fetch_hostname_by_system()
-
-        if suggestion is None:
-            suggestion = self.fetch_hostname_by_reverse_dns()
-        return suggestion
 
     def config_setup(self):
         '''Set up settings for Simplified OpenVPN on current system.'''
