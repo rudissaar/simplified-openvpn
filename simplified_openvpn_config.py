@@ -45,11 +45,10 @@ class SimplifiedOpenvpnConfig:
 
     def config_setup(self):
         """Set up settings for Simplified OpenVPN on current system."""
-        sample = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
         config = dict()
         config['server'] = dict()
 
-        suggestion = _suggest.hostname()
+        suggestion = self.get_suggestion('hostname')
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
             if suggestion:
@@ -60,7 +59,7 @@ class SimplifiedOpenvpnConfig:
 
             config['server']['hostname'] = self.hostname = hostname
 
-        suggestion = _suggest.protocol()
+        suggestion = self.get_suggestion('protocol')
         while self.protocol is None:
             prompt = '> Select protocol that you would like to use: (TCP|UDP) '
             if suggestion:
@@ -70,6 +69,17 @@ class SimplifiedOpenvpnConfig:
                 protocol = suggestion
 
             config['server']['protocol'] = self.protocol = protocol.lower()
+
+        suggestion = self.get_suggestion('port')
+        while self.port is None:
+            prompt = '> Select port that you are using for for your server: '
+            if suggestion:
+                prompt += '[' + str(suggestion) + '] '
+            port = input(prompt)
+            if port.strip() == '':
+                port = suggestion
+
+            config['server']['port'] = self.port = int(port)
 
     def load_config(self):
         """Populate properties with values if config file exists."""
@@ -81,6 +91,14 @@ class SimplifiedOpenvpnConfig:
                 for key, value in data[pool].items():
                     if key in dir(self):
                         setattr(self, key, value)
+
+    @staticmethod
+    def get_suggestion(key):
+        """Gets suggestions from _suggest class if possible."""
+        method = getattr(_suggest, key, None)
+        if method is not None:
+            return method()
+        return None
 
     @property
     def server_dir(self):

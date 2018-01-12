@@ -33,3 +33,9 @@ class SimplifiedOpenvpnSuggest:
         """Getting suggestion for protocol."""
         suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
         return suggestion
+
+    @staticmethod
+    def port():
+        """Getting suggestion for port."""
+        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        return suggestion
