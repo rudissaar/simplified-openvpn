@@ -1,7 +1,7 @@
 {
     "server": {
         "hostname": null,
-        "protocol": "UDP",
+        "protocol": "udp",
         "port": 1194
     }
 }

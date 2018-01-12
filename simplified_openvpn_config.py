@@ -47,9 +47,7 @@ class SimplifiedOpenvpnConfig:
         """Set up settings for Simplified OpenVPN on current system."""
         sample = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
         config = dict()
-
-        with open(sample) as sample_config:
-            config = json.load(sample_config)
+        config['server'] = dict()
 
         suggestion = _suggest.hostname()
         while self.hostname is None:
@@ -61,6 +59,17 @@ class SimplifiedOpenvpnConfig:
                 hostname = suggestion
 
             config['server']['hostname'] = self.hostname = hostname
+
+        suggestion = _suggest.protocol()
+        while self.protocol is None:
+            prompt = '> Select protocol that you would like to use: (TCP|UDP) '
+            if suggestion:
+                prompt += '[' + suggestion.upper() + '] '
+            protocol = input(prompt)
+            if protocol.strip() == '':
+                protocol = suggestion
+
+            config['server']['protocol'] = self.protocol = protocol.lower()
 
     def load_config(self):
         """Populate properties with values if config file exists."""
