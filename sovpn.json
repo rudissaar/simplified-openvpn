@@ -1,5 +1,6 @@
 {
     "server": {
+        "server_dir": "/etc/openvpn/",
         "hostname": null,
         "protocol": "udp",
         "port": 1194

@@ -19,8 +19,14 @@ class SimplifiedOpenvpnSuggest:
         return defaults['server'][key]
 
     @staticmethod
+    def server_dir():
+        """Getting suggestion for server_dir."""
+        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        return suggestion
+
+    @staticmethod
     def hostname():
-        """Returns suggestion for hostname"""
+        """Returns suggestion for hostname."""
         suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
         if suggestion is None:
             suggestion = _helper.fetch_hostname_by_system()

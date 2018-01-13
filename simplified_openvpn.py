@@ -23,59 +23,9 @@ class SimplifiedOpenvpn:
         '''Loads config if possible, else asks you to generate config.'''
         self._config = SimplifiedOpenvpnConfig()
 
-    def needs_setup(self):
-        '''Check if the script needs to run initial setup.'''
-        if os.path.isfile(self._config.sovpn_config_file):
-            return False
-        return True
-
     def config_setup(self):
         '''Set up settings for Simplified OpenVPN on current system.'''
         config = dict()
-
-        sample_config_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
-        with open(sample_config_path) as sample_config:
-            config = json.load(sample_config)
-
-        '''Getting hostname for config.'''
-        suggestion = self.get_suggestion_hostname()
-        while self.hostname is None:
-            prompt = '> Enter hostname of your server: '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
-            hostname = input(prompt)
-            if hostname.strip() == '':
-                hostname = suggestion
-
-            #config['server']['hostname'] = self.hostname = hostname
-
-        '''Getting protocol for config.'''
-        suggestion = None
-        if config['server']['protocol']:
-            suggestion = config['server']['protocol']
-        while self.protocol is None:
-            prompt = '> Select protocol that you would like to use: (TCP|UDP) '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
-            protocol = input(prompt)
-            if protocol.strip() == '':
-                protocol = suggestion
-
-            config['server']['protocol'] = self.protocol = protocol.lower()
-
-        '''Getting port for config.'''
-        suggestion = None
-        if config['server']['port']:
-            suggestion = config['server']['port']
-        while self.port is None:
-            prompt = '> Select port that you are using for for your server: '
-            if suggestion:
-                prompt += '[' + str(suggestion) + '] '
-            port = input(prompt)
-            if port.strip() == '':
-                port = suggestion
-
-            config['server']['port'] = self.port = int(port)
 
         '''Write config values to file.'''
         with open(self._config.server_dir + 'sovpn.json', 'w') as config_file:

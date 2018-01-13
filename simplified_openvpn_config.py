@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # pylint: disable=R0904
+# pylint: disable=R0912
 
 """file that contains SimplifiedOpenvpnConfig class."""
 
@@ -16,15 +17,15 @@ class SimplifiedOpenvpnConfig:
     settings['server'] = dict()
     settings['client'] = dict()
 
-    settings['server']['server_dir'] = '/etc/openvpn/'
+    settings['server']['server_dir'] = None
     settings['server']['easy_rsa_dir'] = '/etc/openvpn/easy-rsa/'
     settings['server']['clients_dir'] = '/root/openvpn-clients/'
-    settings['server']['sovpn_config_file'] = '/etc/openvpn/sovpn.json'
     settings['server']['sovpn_share_salt'] = None
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
-    settings['server']['port'] = None
     settings['server']['protocol'] = None
+    settings['server']['port'] = None
+    settings['server']['sovpn_config_file'] = None
 
     settings['client']['slug'] = None
     settings['client']['pretty_name'] = None
@@ -37,9 +38,14 @@ class SimplifiedOpenvpnConfig:
         else:
             self.load_config()
 
-    def needs_setup(self):
+    @staticmethod
+    def needs_setup():
         """Check if the script needs to run initial setup."""
-        if os.path.isfile(self.sovpn_config_file):
+        file_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn-config-path.txt'
+        if not os.path.isfile(file_path):
+            return True
+        sovpn_config_file = _helper.read_file_as_value(file_path)
+        if os.path.isfile(sovpn_config_file):
             return False
         return True
 
@@ -47,6 +53,18 @@ class SimplifiedOpenvpnConfig:
         """Set up settings for Simplified OpenVPN on current system."""
         config = dict()
         config['server'] = dict()
+
+        suggestion = self.get_suggestion('server_dir')
+        while self.server_dir is None:
+            prompt = '> Enter location of OpenVPN server directory on your server: '
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            server_dir = input(prompt)
+            if server_dir.strip() == '':
+                server_dir = suggestion
+            self.server_dir = server_dir
+
+        config['server']['server_dir'] = self.server_dir
 
         suggestion = self.get_suggestion('hostname')
         while self.hostname is None:
@@ -56,8 +74,9 @@ class SimplifiedOpenvpnConfig:
             hostname = input(prompt)
             if hostname.strip() == '':
                 hostname = suggestion
+            self.hostname = hostname
 
-            config['server']['hostname'] = self.hostname = hostname
+        config['server']['hostname'] = self.hostname
 
         suggestion = self.get_suggestion('protocol')
         while self.protocol is None:
@@ -67,8 +86,9 @@ class SimplifiedOpenvpnConfig:
             protocol = input(prompt)
             if protocol.strip() == '':
                 protocol = suggestion
+            self.protocol = protocol
 
-            config['server']['protocol'] = self.protocol = protocol.lower()
+        config['server']['protocol'] = self.protocol
 
         suggestion = self.get_suggestion('port')
         while self.port is None:
@@ -78,8 +98,22 @@ class SimplifiedOpenvpnConfig:
             port = input(prompt)
             if port.strip() == '':
                 port = suggestion
+            self.port = port
 
-            config['server']['port'] = self.port = int(port)
+        config['server']['port'] = self.port
+
+        suggestion = self.server_dir + 'sovpn.json'
+        while self.sovpn_config_file is None:
+            prompt = "> Enter location for Simplified OpenVPN's config file: "
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            sovpn_config_file = input(prompt)
+            if sovpn_config_file.strip() == '':
+                sovpn_config_file = suggestion
+            self.sovpn_config_file = sovpn_config_file
+
+        print(config)
+        exit()
 
     def load_config(self):
         """Populate properties with values if config file exists."""
@@ -99,6 +133,16 @@ class SimplifiedOpenvpnConfig:
         if method is not None:
             return method()
         return None
+
+    @property
+    def sovpn_config_file(self):
+        """Returns absolute path of sovpn's config file."""
+        return self.settings['server']['sovpn_config_file']
+
+    @sovpn_config_file.setter
+    def sovpn_config_file(self, value):
+        """Assigns new value to sovpn_config_file property."""
+        self.settings['server']['sovpn_config_file'] = value
 
     @property
     def server_dir(self):
@@ -165,16 +209,6 @@ class SimplifiedOpenvpnConfig:
         self.settings['server']['clients_dir'] = _helper.sanitize_path(value)
 
     @property
-    def sovpn_config_file(self):
-        """Returns absolute path of sovpn's config file."""
-        return self.settings['server']['sovpn_config_file']
-
-    @sovpn_config_file.setter
-    def sovpn_config_file(self, value):
-        """Assigns new value to sovpn_config_file property."""
-        self.settings['server']['sovpn_config_file'] = value
-
-    @property
     def sovpn_share_salt(self):
         "Returns salt that is being used in sovpn_share script."
         return self.settings['server']['sovpn_share_salt']
@@ -202,7 +236,7 @@ class SimplifiedOpenvpnConfig:
 
     def fetch_hostname_by_config_file(self):
         """Tries to fetch hostname from sovpn config file."""
-        if os.path.isfile(self.sovpn_config_file):
+        if self.sovpn_config_file and os.path.isfile(self.sovpn_config_file):
             with open(self.sovpn_config_file) as config_file:
                 data = json.load(config_file)
                 hostname = data['server']['hostname']
