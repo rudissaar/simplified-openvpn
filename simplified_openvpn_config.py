@@ -33,18 +33,18 @@ class SimplifiedOpenvpnConfig:
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
+        self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
+
         if self.needs_setup():
             self.config_setup()
         else:
             self.load_config()
 
-    @staticmethod
-    def needs_setup():
+    def needs_setup(self):
         """Check if the script needs to run initial setup."""
-        file_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn-config-path.txt'
-        if not os.path.isfile(file_path):
+        if not os.path.isfile(self.sovpn_config_pointer):
             return True
-        sovpn_config_file = _helper.read_file_as_value(file_path)
+        sovpn_config_file = _helper.read_file_as_value(self.sovpn_config_pointer)
         if os.path.isfile(sovpn_config_file):
             return False
         return True
@@ -112,11 +112,14 @@ class SimplifiedOpenvpnConfig:
                 sovpn_config_file = suggestion
             self.sovpn_config_file = sovpn_config_file
 
-        print(config)
-        exit()
+        with open(self.container + 'sovpn-config-path.txt', 'w') as config_path_file:
+            config_path_file.write(self.sovpn_config_file + "\n")
 
     def load_config(self):
         """Populate properties with values if config file exists."""
+        if self.sovpn_config_file is None:
+            self.sovpn_config_file = _helper.read_file_as_value(self.sovpn_config_pointer)
+
         if os.path.isfile(self.sovpn_config_file):
             with open(self.sovpn_config_file) as config_file:
                 data = json.load(config_file)
@@ -133,6 +136,11 @@ class SimplifiedOpenvpnConfig:
         if method is not None:
             return method()
         return None
+
+    @property
+    def sovpn_config_pointer(self):
+        """Returns path to SOVPN's config file."""
+        return self.container + 'sovpn-config-path.txt'
 
     @property
     def sovpn_config_file(self):
