@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# pylint: disable=R0904
-# pylint: disable=R0912
 
 """file that contains SimplifiedOpenvpnConfig class."""
 
@@ -12,6 +10,7 @@ from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_suggest import SimplifiedOpenvpnSuggest as _suggest
 
 class SimplifiedOpenvpnConfig:
+    # pylint: disable=R0904
     """Class that contains shareable configuration."""
     settings = dict()
     settings['server'] = dict()
@@ -50,10 +49,13 @@ class SimplifiedOpenvpnConfig:
         return True
 
     def config_setup(self):
+        # pylint: disable=R0912
+        # pylint: disable=R0915
         """Set up settings for Simplified OpenVPN on current system."""
         config = dict()
         config['server'] = dict()
 
+        # Ask value for server_dir property.
         suggestion = self.get_suggestion('server_dir')
         while self.server_dir is None:
             prompt = '> Enter location of OpenVPN server directory on your server: '
@@ -66,6 +68,7 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['server_dir'] = self.server_dir
 
+        # Ask value for hostname property.
         suggestion = self.get_suggestion('hostname')
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
@@ -78,6 +81,7 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['hostname'] = self.hostname
 
+        # Ask value for protocol property.
         suggestion = self.get_suggestion('protocol')
         while self.protocol is None:
             prompt = '> Select protocol that you would like to use: (TCP|UDP) '
@@ -90,6 +94,7 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['protocol'] = self.protocol
 
+        # Ask value for port property.
         suggestion = self.get_suggestion('port')
         while self.port is None:
             prompt = '> Select port that you are using for for your server: '
@@ -102,6 +107,7 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['port'] = self.port
 
+        # Ask value for sovpn_config)file property.
         suggestion = self.server_dir + 'sovpn.json'
         while self.sovpn_config_file is None:
             prompt = "> Enter location for Simplified OpenVPN's config file: "
@@ -112,8 +118,13 @@ class SimplifiedOpenvpnConfig:
                 sovpn_config_file = suggestion
             self.sovpn_config_file = sovpn_config_file
 
-        with open(self.container + 'sovpn-config-path.txt', 'w') as config_path_file:
+        # Write sovpn's config file path to pointer file.
+        with open(self.sovpn_config_pointer, 'w') as config_path_file:
             config_path_file.write(self.sovpn_config_file + "\n")
+
+        # Write config values to file.
+        with open(self.sovpn_config_file, 'w') as config_file:
+            config_file.write(json.dumps(config) + "\n")
 
     def load_config(self):
         """Populate properties with values if config file exists."""
@@ -140,7 +151,7 @@ class SimplifiedOpenvpnConfig:
     @property
     def sovpn_config_pointer(self):
         """Returns path to SOVPN's config file."""
-        return self.container + 'sovpn-config-path.txt'
+        return self.container + 'sovpn_config_path.txt'
 
     @property
     def sovpn_config_file(self):
