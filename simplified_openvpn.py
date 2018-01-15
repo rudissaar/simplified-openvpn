@@ -23,17 +23,6 @@ class SimplifiedOpenvpn:
         '''Loads config if possible, else asks you to generate config.'''
         self._config = SimplifiedOpenvpnConfig()
 
-    def config_setup(self):
-        '''Set up settings for Simplified OpenVPN on current system.'''
-        config = dict()
-
-        '''Write config values to file.'''
-        with open(self._config.server_dir + 'sovpn.json', 'w') as config_file:
-            config_file.write(json.dumps(config) + "\n")
-
-        client_template_path = os.path.dirname(os.path.realpath(__file__)) + '/templates/client.mustache'
-        copyfile(client_template_path, self._config.server_dir + 'client.mustache')
-
     def client_dir_exists(self, verbose=True):
         if self._config.slug is None or self._config.clients_dir is None:
             return None

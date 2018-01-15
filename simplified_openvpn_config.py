@@ -5,11 +5,13 @@
 
 import os
 import json
+from shutil import copyfile
 from slugify import slugify
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_suggest import SimplifiedOpenvpnSuggest as _suggest
 
 class SimplifiedOpenvpnConfig:
+    # pylint: disable=R0902
     # pylint: disable=R0904
     """Class that contains shareable configuration."""
     settings = dict()
@@ -151,6 +153,10 @@ class SimplifiedOpenvpnConfig:
         # Write config values to file.
         with open(self.sovpn_config_file, 'w') as config_file:
             config_file.write(json.dumps(config) + "\n")
+
+        # Copy client's template to server's directory.
+        client_template_path = self.container + 'templates/client.mustache'
+        copyfile(client_template_path, self.server_dir + 'client.mustache')
 
     def load(self):
         """Populate properties with values if config file exists."""
