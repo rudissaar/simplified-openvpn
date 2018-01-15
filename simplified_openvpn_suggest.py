@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# pylint: disable=R0904
 
 """File that contains SimplifiedOpenvpnSuggest class."""
 
@@ -20,14 +19,23 @@ class SimplifiedOpenvpnSuggest:
 
     @staticmethod
     def server_dir():
+        # pylint: disable=E0602
         """Getting suggestion for server_dir."""
-        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        return suggestion
+
+    @staticmethod
+    def easy_rsa_dir():
+        # pylint: disable=E0602
+        """Getting suggestion for easy_rsa_dir."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
         return suggestion
 
     @staticmethod
     def hostname():
+        # pylint: disable=E0602
         """Returns suggestion for hostname."""
-        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
         if suggestion is None:
             suggestion = _helper.fetch_hostname_by_system()
         if suggestion is None:
@@ -36,12 +44,14 @@ class SimplifiedOpenvpnSuggest:
 
     @staticmethod
     def protocol():
+        # pylint: disable=E0602
         """Getting suggestion for protocol."""
-        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
         return suggestion
 
     @staticmethod
     def port():
+        # pylint: disable=E0602
         """Getting suggestion for port."""
-        suggestion = SimplifiedOpenvpnSuggest.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
         return suggestion
