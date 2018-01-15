@@ -32,6 +32,15 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
+    def clients_dir():
+        # pylint: disable=E0602
+        """Getting suggestion for clients_dir."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        if suggestion is None:
+            suggestion = _helper.sanitize_path(os.path.expanduser('~')) + 'openvpn-clients'
+        return suggestion
+
+    @staticmethod
     def hostname():
         # pylint: disable=E0602
         """Returns suggestion for hostname."""

@@ -18,7 +18,7 @@ class SimplifiedOpenvpnConfig:
 
     settings['server']['server_dir'] = None
     settings['server']['easy_rsa_dir'] = None
-    settings['server']['clients_dir'] = '/root/openvpn-clients/'
+    settings['server']['clients_dir'] = None
     settings['server']['sovpn_share_salt'] = None
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
@@ -80,6 +80,19 @@ class SimplifiedOpenvpnConfig:
             self.easy_rsa_dir = easy_rsa_dir
 
         config['server']['easy_rsa_dir'] = self.easy_rsa_dir
+
+        # Ask value for clients_dir property.
+        suggestion = self.get_suggestion('clients_dir')
+        while self.clients_dir is None:
+            prompt = "> Enter location for Client's directory on your server: "
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            clients_dir = input(prompt)
+            if clients_dir.strip() == '':
+                clients_dir = suggestion
+            self.clients_dir = clients_dir
+
+        config['server']['clients_dir'] = self.clients_dir
 
         # Ask value for hostname property.
         suggestion = self.get_suggestion('hostname')
