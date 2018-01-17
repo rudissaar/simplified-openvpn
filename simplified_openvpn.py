@@ -18,6 +18,38 @@ class SimplifiedOpenvpn:
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
         self._config = SimplifiedOpenvpnConfig()
+        self.load_env()
+
+    def load_env(self):
+        """Exports environment variables from vars file."""
+        vars_file_path = self._config.easy_rsa_dir + 'vars'
+        if not os.path.isfile(vars_file_path):
+            print("> Can't find vars file from EASY RSA directory, exiting.")
+            exit(1)
+
+        with open(vars_file_path, 'r') as vars_file:
+            easy_rsa = self._config.easy_rsa_dir.rstrip('/')
+
+            for line in vars_file.readlines():
+                line = line.strip()
+                if line.startswith('#'):
+                    continue
+
+                if line.startswith('export'):
+                    line = line.strip('export').strip()
+                    key, value = line.split('=')
+                    value = value.strip('"')
+
+                    if value.startswith('`') and value.endswith('`'):
+                        value = value.strip('`')
+                    if key == 'EASY_RSA':
+                        value = easy_rsa
+                    if key == 'KEY_CONFIG':
+                        value = easy_rsa + '/openssl.cnf'
+                    value = value.replace('$EASY_RSA', easy_rsa)
+
+                    # Assing new enviorment variable.
+                    os.environ[key] = value
 
     def client_exists(self, verbose=True):
         """Checks if client with generated slug already exists."""
