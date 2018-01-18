@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""file that contains SimplifiedOpenvpnConfig class."""
+"""File that contains SimplifiedOpenvpnConfig class."""
 
 import os
 import json
@@ -95,6 +95,19 @@ class SimplifiedOpenvpnConfig:
             self.clients_dir = clients_dir
 
         config['server']['clients_dir'] = self.clients_dir
+
+        # Ask value for sovpn_share_salt property.
+        suggestion = self.get_suggestion('sovpn_share_salt')
+        while self.sovpn_share_salt is None:
+            prompt = "> Enter random Salt for sharing script: "
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            sovpn_share_salt = input(prompt)
+            if sovpn_share_salt.strip() == '':
+                sovpn_share_salt = suggestion
+            self.sovpn_share_salt = sovpn_share_salt
+
+        config['server']['sovpn_share_salt'] = self.sovpn_share_salt
 
         # Ask value for hostname property.
         suggestion = self.get_suggestion('hostname')
