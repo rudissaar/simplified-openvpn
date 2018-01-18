@@ -10,7 +10,7 @@ from subprocess import run
 import pystache
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
-
+from simplified_openvpn_database import SimplifiedOpenvpnDatabase
 
 class SimplifiedOpenvpn:
     """Main class that takes care of managing OpenVPN on your server."""
@@ -171,6 +171,10 @@ class SimplifiedOpenvpn:
         # Clean up.
         self.cleanup_client_certificates()
 
+    def generate_share_hash(self):
+        """Generates share hash for client and inserts it to database."""
+        database = SimplifiedOpenvpnDatabase()
+
     def cleanup_client_certificates(self):
         """Cleans up client's certificates as they are no longer needed."""
         cert_files = [self._config.slug + '.crt', self._config.slug + '.key', 'ca.crt', 'ta.key']
@@ -202,3 +206,4 @@ class SimplifiedOpenvpn:
         self.copy_ca_file()
         self.copy_ta_file()
         self.generate_config_files()
+        self.generate_share_hash()

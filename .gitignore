@@ -2,3 +2,4 @@ __pycache__
 .idea
 
 sovpn_config_pointer.txt
+sovpn.sqlite
