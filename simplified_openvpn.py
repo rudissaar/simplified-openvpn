@@ -171,10 +171,10 @@ class SimplifiedOpenvpn:
         # Clean up.
         self.cleanup_client_certificates()
 
-    def generate_share_hash(self):
-        """Generates share hash for client and inserts it to database."""
+    def insert_share_hash(self):
+        """Inserts client's data to database."""
         sovpn_data = SimplifiedOpenvpnData()
-        sovpn_data.insert_client(self._config.slug, self._config.pretty_name)
+        sovpn_data.insert_share_hash(self._config.slug, self._config.share_hash)
 
     def cleanup_client_certificates(self):
         """Cleans up client's certificates as they are no longer needed."""
@@ -207,4 +207,4 @@ class SimplifiedOpenvpn:
         self.copy_ca_file()
         self.copy_ta_file()
         self.generate_config_files()
-        #self.generate_share_hash()
+        self.insert_share_hash()

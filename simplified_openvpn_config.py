@@ -3,6 +3,7 @@
 
 """File that contains SimplifiedOpenvpnConfig class."""
 
+import hashlib
 import os
 import json
 from shutil import copyfile
@@ -28,8 +29,9 @@ class SimplifiedOpenvpnConfig:
     settings['server']['port'] = None
     settings['server']['sovpn_config_file'] = None
 
-    settings['client']['slug'] = None
     settings['client']['pretty_name'] = None
+    settings['client']['slug'] = None
+    settings['client']['share_hash'] = None
     settings['client']['client_dir'] = None
 
     def __init__(self):
@@ -343,6 +345,16 @@ class SimplifiedOpenvpnConfig:
             self.settings['server']['protocol'] = value.lower()
 
     @property
+    def pretty_name(self):
+        """Returns value of pretty_name property."""
+        return self.settings['client']['pretty_name']
+
+    @pretty_name.setter
+    def pretty_name(self, value):
+        """Assigns new value to pretty_name property."""
+        self.settings['client']['pretty_name'] = value.strip()
+
+    @property
     def slug(self):
         """Returns value of slug property."""
         return self.settings['client']['slug']
@@ -354,14 +366,11 @@ class SimplifiedOpenvpnConfig:
         self.settings['client']['slug'] = slug
 
     @property
-    def pretty_name(self):
-        """Returns value of pretty_name property."""
-        return self.settings['client']['pretty_name']
-
-    @pretty_name.setter
-    def pretty_name(self, value):
-        """Assigns new value to pretty_name property."""
-        self.settings['client']['pretty_name'] = value.strip()
+    def share_hash(self):
+        """Returns generated value of sovpn_hash."""
+        feed = (self.sovpn_share_salt + self.slug).encode('utf-8')
+        share_hash = hashlib.sha256(feed).hexdigest()
+        return share_hash
 
     @property
     def client_dir(self):
