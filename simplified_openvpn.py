@@ -129,7 +129,7 @@ class SimplifiedOpenvpn:
             # Remove config file that you just zipped but keep certificates for others.
             os.remove(config_path)
 
-    def generate_config_files(self):
+    def generate_config_files(self, verbose=True):
         """Generates different flavours of config files."""
         ca_path = self._config.client_dir + 'ca.crt'
         cert_path = self._config.client_dir + self._config.slug + '.crt'
@@ -170,11 +170,16 @@ class SimplifiedOpenvpn:
 
         # Clean up.
         self.cleanup_client_certificates()
+        
+        if verbose:
+            print('> Client "' + self._config.slug + '" was successfully created.')
 
-    def insert_share_hash(self):
+    def insert_share_hash(self, verbose=True):
         """Inserts client's data to database."""
         sovpn_data = SimplifiedOpenvpnData()
         sovpn_data.insert_share_hash(self._config.slug, self._config.share_hash)
+        if verbose:
+            print('> Share Hash: ' + self._config.share_hash)
 
     def cleanup_client_certificates(self):
         """Cleans up client's certificates as they are no longer needed."""
