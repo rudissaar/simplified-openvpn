@@ -38,3 +38,13 @@ class SimplifiedOpenvpnData:
         if result:
             return result[0]
         return None
+
+    def find_client_share_hash_by_slug(self, slug):
+        """Returns share's hash that is fetched by slug."""
+        sql = self.read_sql_file('find_client_hash_by_slug.sql')
+        cursor = self._db.cursor()
+        cursor.execute(sql, [slug])
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        return None

@@ -28,6 +28,24 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     DB = SimplifiedOpenvpnData()
     APP = Flask(__name__)
     PATH = CONFIG.clients_dir
+    ALLOWED_SLUGS = None
+
+    # If slugs are specified, then only allow sharing for specific clients.
+    if len(sys.argv) > 2:
+        # As we are only serving files to specific clients we can aswell output their hashes.
+        print('> Sharing mappings:')
+
+        ALLOWED_SLUGS = list()
+        for slug in sys.argv[2:]:
+            ALLOWED_SLUGS.append(slug)
+            share_hash = DB.find_client_share_hash_by_slug(slug)
+            if share_hash:
+                print('> ' + slug + ' : ' + share_hash)
+            else:
+                print('> ' + slug + ' : ---')
+    else:
+        print('> Sharing confirguration files for everybody.')
+    print()
 
     @APP.route('/<share_hash>')
     def client_page(share_hash):
@@ -35,6 +53,9 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         slug = DB.find_client_slug_by_share_hash(share_hash)
         if slug is None:
             abort(404)
+        if ALLOWED_SLUGS is not None:
+            if slug not in ALLOWED_SLUGS:
+                abort(403)
 
         data = dict()
         data['client_name'] = slug
@@ -58,6 +79,9 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         slug = DB.find_client_slug_by_share_hash(share_hash)
         if slug is None:
             abort(404)
+        if ALLOWED_SLUGS is not None:
+            if slug not in ALLOWED_SLUGS:
+                abort(403)
 
         return send_file(PATH + slug + '/' + config_file)
 
