@@ -85,4 +85,4 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
         return send_file(PATH + slug + '/' + config_file)
 
-    APP.run(host='0.0.0.0', port=1195)
+    APP.run(host='0.0.0.0', port=CONFIG.sovpn_share_port)

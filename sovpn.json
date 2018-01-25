@@ -5,6 +5,7 @@
         "clients_dir": null,
         "hostname": null,
         "protocol": "udp",
-        "port": 1194
+        "port": 1194,
+        "sovpn_share_port": 1195
     }
 }

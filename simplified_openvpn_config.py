@@ -22,11 +22,12 @@ class SimplifiedOpenvpnConfig:
     settings['server']['server_dir'] = None
     settings['server']['easy_rsa_dir'] = None
     settings['server']['clients_dir'] = None
-    settings['server']['sovpn_share_salt'] = None
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
     settings['server']['protocol'] = None
     settings['server']['port'] = None
+    settings['server']['sovpn_share_salt'] = None
+    settings['server']['sovpn_share_port'] = None
     settings['server']['sovpn_config_file'] = None
 
     settings['client']['pretty_name'] = None
@@ -54,6 +55,7 @@ class SimplifiedOpenvpnConfig:
 
     def setup(self):
         # pylint: disable=R0912
+        # pylint: disable=R0914
         # pylint: disable=R0915
         """Set up settings for Simplified OpenVPN on current system."""
         config = dict()
@@ -98,19 +100,6 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['clients_dir'] = self.clients_dir
 
-        # Ask value for sovpn_share_salt property.
-        suggestion = self.get_suggestion('sovpn_share_salt')
-        while self.sovpn_share_salt is None:
-            prompt = "> Enter random Salt for sharing script: "
-            if suggestion:
-                prompt += '[' + suggestion + '] '
-            sovpn_share_salt = input(prompt)
-            if sovpn_share_salt.strip() == '':
-                sovpn_share_salt = suggestion
-            self.sovpn_share_salt = sovpn_share_salt
-
-        config['server']['sovpn_share_salt'] = self.sovpn_share_salt
-
         # Ask value for hostname property.
         suggestion = self.get_suggestion('hostname')
         while self.hostname is None:
@@ -150,7 +139,33 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['port'] = self.port
 
-        # Ask value for sovpn_config)file property.
+        # Ask value for sovpn_share_salt property.
+        suggestion = self.get_suggestion('sovpn_share_salt')
+        while self.sovpn_share_salt is None:
+            prompt = "> Enter random Salt for sharing script: "
+            if suggestion:
+                prompt += '[' + suggestion + '] '
+            sovpn_share_salt = input(prompt)
+            if sovpn_share_salt.strip() == '':
+                sovpn_share_salt = suggestion
+            self.sovpn_share_salt = sovpn_share_salt
+
+        config['server']['sovpn_share_salt'] = self.sovpn_share_salt
+
+        # Ask value for sovpn_share_port property.
+        suggestion = self.get_suggestion('sovpn_share_port')
+        while self.sovpn_share_port is None:
+            prompt = "> Enter port for sharing script: "
+            if suggestion:
+                prompt += '[' + str(suggestion) + '] '
+            sovpn_share_port = input(prompt)
+            if sovpn_share_port.strip() == '':
+                sovpn_share_port = suggestion
+            self.sovpn_share_port = sovpn_share_port
+
+        config['server']['sovpn_share_port'] = self.sovpn_share_port
+
+        # Ask value for sovpn_config_file property.
         suggestion = self.server_dir + 'sovpn.json'
         while self.sovpn_config_file is None:
             prompt = "> Enter location for Simplified OpenVPN's config file: "
@@ -275,16 +290,6 @@ class SimplifiedOpenvpnConfig:
         self.settings['server']['clients_dir'] = _helper.sanitize_path(value)
 
     @property
-    def sovpn_share_salt(self):
-        "Returns salt that is being used in sovpn_share script."
-        return self.settings['server']['sovpn_share_salt']
-
-    @sovpn_share_salt.setter
-    def sovpn_share_salt(self, value):
-        """Assigns new value to sovpn_share_salt property."""
-        self.settings['server']['sovpn_share_salt'] = value
-
-    @property
     def hostname(self):
         """Returns value of hostname property."""
         hostname = self.settings['server']['hostname']
@@ -343,6 +348,26 @@ class SimplifiedOpenvpnConfig:
 
         if isinstance(value, str) and value.lower() in protocols:
             self.settings['server']['protocol'] = value.lower()
+
+    @property
+    def sovpn_share_salt(self):
+        "Returns salt that gets used in sharing."
+        return self.settings['server']['sovpn_share_salt']
+
+    @sovpn_share_salt.setter
+    def sovpn_share_salt(self, value):
+        """Assigns new value to sovpn_share_salt property."""
+        self.settings['server']['sovpn_share_salt'] = value
+
+    @property
+    def sovpn_share_port(self):
+        """Returns port that gets used in sharing."""
+        return self.settings['server']['sovpn_share_port']
+
+    @sovpn_share_port.setter
+    def sovpn_share_port(self, value):
+        """Assigns new value to sovpn_share_port property."""
+        self.settings['server']['sovpn_share_port'] = int(value)
 
     @property
     def pretty_name(self):

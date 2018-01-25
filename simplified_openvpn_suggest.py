@@ -45,17 +45,6 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
-    def sovpn_share_salt():
-        # pylint: disable=E0602
-        """Getting suggestion for sovpn_share_salt."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
-        if suggestion is None:
-            chars = string.ascii_letters + string.digits
-            length = random.randint(10, 16)
-            suggestion = ''.join(random.choice(chars) for _ in range(length))
-        return suggestion
-
-    @staticmethod
     def hostname():
         # pylint: disable=E0602
         """Returns suggestion for hostname."""
@@ -77,5 +66,23 @@ class SimplifiedOpenvpnSuggest:
     def port():
         # pylint: disable=E0602
         """Getting suggestion for port."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        return suggestion
+
+    @staticmethod
+    def sovpn_share_salt():
+        # pylint: disable=E0602
+        """Getting suggestion for sovpn_share_salt."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        if suggestion is None:
+            chars = string.ascii_letters + string.digits
+            length = random.randint(10, 16)
+            suggestion = ''.join(random.choice(chars) for _ in range(length))
+        return suggestion
+
+    @staticmethod
+    def sovpn_share_port():
+        # pylint: disable=E0602
+        """Getting suggestion for sovpn_share_port."""
         suggestion = __class__.get_value_from_sample(_helper.current_method())
         return suggestion
