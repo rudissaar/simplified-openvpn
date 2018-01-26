@@ -1,2 +1,2 @@
-SELECT hash from clients
+SELECT hash FROM clients
 WHERE slug = ?

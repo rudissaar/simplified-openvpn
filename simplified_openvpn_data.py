@@ -48,3 +48,15 @@ class SimplifiedOpenvpnData:
         if result:
             return result[0]
         return None
+
+    def get_all_client_slugs(self):
+        """Returns list that contains client slugs."""
+        sql = self.read_sql_file('select_client_slugs.sql')
+        cursor = self._db.cursor()
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        slugs = list()
+        for record in result:
+            slugs.append(record[0])
+        return slugs
