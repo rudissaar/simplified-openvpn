@@ -15,6 +15,8 @@ from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
 
 SOVPN = SimplifiedOpenvpn()
+CONFIG = SimplifiedOpenvpnConfig()
+DB = SimplifiedOpenvpnData()
 
 if (
         len(sys.argv) == 1 or
@@ -24,8 +26,6 @@ if (
     SOVPN.create_client()
 elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # Share.
-    CONFIG = SimplifiedOpenvpnConfig()
-    DB = SimplifiedOpenvpnData()
     APP = Flask(__name__)
     PATH = CONFIG.clients_dir
     ALLOWED_SLUGS = None
@@ -86,3 +86,19 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         return send_file(PATH + slug + '/' + config_file)
 
     APP.run(host='0.0.0.0', port=CONFIG.sovpn_share_port)
+elif len(sys.argv) > 1 and sys.argv[1] == 'init':
+    pass
+elif len(sys.argv) > 1 and sys.argv[1] == 'reinit':
+    pass
+elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
+    files_to_remove = [
+        CONFIG.sovpn_config_file,
+        CONFIG.sovpn_config_pointer,
+        CONFIG.container + 'sovpn.sqlite'
+    ]
+
+    for file_to_remove in files_to_remove:
+        if os.path.isfile(file_to_remove):
+            os.remove(file_to_remove)
+
+    print("> Removed SOVPN's configuration from your system.")
