@@ -269,14 +269,10 @@ class SimplifiedOpenvpnConfig:
         return self.settings['server']['clients_dir']
 
     @clients_dir.setter
-    def clients_dir(self, value, create=False):
+    def clients_dir(self, value):
         """Assigns new value to clients_dir property if possible."""
-        if create:
-            _helper.create_directory(value)
-
         if not os.path.isdir(value):
-            if create:
-                _helper.create_directory(value)
+           _helper.create_directory(value)
 
         status = os.path.isdir(value)
 
