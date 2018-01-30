@@ -14,18 +14,18 @@ from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
 
-SOVPN = SimplifiedOpenvpn()
-CONFIG = SimplifiedOpenvpnConfig()
-DB = SimplifiedOpenvpnData()
 
 if (
         len(sys.argv) == 1 or
         (sys.argv[1].lower() == 'client' and len(sys.argv) == 2) or
         (sys.argv[1].lower() == 'client' and sys.argv[2].lower() == 'create')):
     # Client.
+    SOVPN = SimplifiedOpenvpn()
     SOVPN.create_client()
 elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # Share.
+    CONFIG = SimplifiedOpenvpnConfig()
+    DB = SimplifiedOpenvpnData()
     APP = Flask(__name__)
     PATH = CONFIG.clients_dir
     ALLOWED_SLUGS = None
@@ -91,13 +91,18 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'init':
 elif len(sys.argv) > 1 and sys.argv[1] == 'reinit':
     pass
 elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
-    files_to_remove = [
+    if SimplifiedOpenvpnConfig.needs_setup():
+        exit(0)
+
+    CONFIG = SimplifiedOpenvpnConfig()
+
+    FILES_TO_REMOVE = [
         CONFIG.sovpn_config_file,
         CONFIG.sovpn_config_pointer,
         CONFIG.container + 'sovpn.sqlite'
     ]
 
-    for file_to_remove in files_to_remove:
+    for file_to_remove in FILES_TO_REMOVE:
         if os.path.isfile(file_to_remove):
             os.remove(file_to_remove)
 

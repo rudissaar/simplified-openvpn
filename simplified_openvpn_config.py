@@ -44,11 +44,14 @@ class SimplifiedOpenvpnConfig:
         else:
             self.load()
 
-    def needs_setup(self):
+    @staticmethod
+    def needs_setup():
         """Check if the script needs to run initial setup."""
-        if not os.path.isfile(self.sovpn_config_pointer):
+        container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
+        sovpn_config_pointer = container + 'sovpn_config_pointer.txt'
+        if not os.path.isfile(sovpn_config_pointer):
             return True
-        sovpn_config_file = _helper.read_file_as_value(self.sovpn_config_pointer)
+        sovpn_config_file = _helper.read_file_as_value(sovpn_config_pointer)
         if os.path.isfile(sovpn_config_file):
             return False
         return True
