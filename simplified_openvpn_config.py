@@ -213,6 +213,20 @@ class SimplifiedOpenvpnConfig:
             return method()
         return None
 
+    def destroy(self):
+        """Removes SOVPN's configuration and data from your system."""
+        files_to_remove = [
+            self.sovpn_config_file,
+            self.sovpn_config_pointer,
+            self.container + 'sovpn.sqlite'
+        ]
+
+        for file_to_remove in files_to_remove:
+            if os.path.isfile(file_to_remove):
+                os.remove(file_to_remove)
+
+        print("> Removed SOVPN's configuration and data from your system.")
+
     @property
     def sovpn_config_pointer(self):
         """Returns path to SOVPN's config file."""
@@ -275,7 +289,7 @@ class SimplifiedOpenvpnConfig:
     def clients_dir(self, value):
         """Assigns new value to clients_dir property if possible."""
         if not os.path.isdir(value):
-           _helper.create_directory(value)
+            _helper.create_directory(value)
 
         status = os.path.isdir(value)
 

@@ -86,24 +86,19 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         return send_file(PATH + slug + '/' + config_file)
 
     APP.run(host='0.0.0.0', port=CONFIG.sovpn_share_port)
-elif len(sys.argv) > 1 and sys.argv[1] == 'init':
-    pass
-elif len(sys.argv) > 1 and sys.argv[1] == 'reinit':
+elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'reinit'):
+    ACTION = sys.argv[1]
+
+    if ACTION == 'init':
+        if not SimplifiedOpenvpnConfig.needs_setup():
+            CONFIG = SimplifiedOpenvpnConfig()
+            CONFIG.destroy()
+    else:
+        pass
     pass
 elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
     if SimplifiedOpenvpnConfig.needs_setup():
         exit(0)
 
     CONFIG = SimplifiedOpenvpnConfig()
-
-    FILES_TO_REMOVE = [
-        CONFIG.sovpn_config_file,
-        CONFIG.sovpn_config_pointer,
-        CONFIG.container + 'sovpn.sqlite'
-    ]
-
-    for file_to_remove in FILES_TO_REMOVE:
-        if os.path.isfile(file_to_remove):
-            os.remove(file_to_remove)
-
-    print("> Removed SOVPN's configuration from your system.")
+    CONFIG.destroy()
