@@ -11,7 +11,7 @@ Simple management interface for OpenVPN Community Edition that makes generating 
 
 ### Server Structure
 In order to make Simplified OpenVPN work, the OpenVPN server needs to have
-following names for certificates/keys:
+following names and structure for certificates/keys:
 
 ```
 {SERVER_DIR}/ca.crt   - Authority Certificate
