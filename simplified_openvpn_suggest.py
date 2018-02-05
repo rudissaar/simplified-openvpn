@@ -12,9 +12,11 @@ from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 class SimplifiedOpenvpnSuggest:
     """Class that contains methods that will give you suggestions."""
     @staticmethod
-    def get_value_from_sample(key):
+    def get_value_from_sample(key, sample_path=None):
         """Get suggestion from sample config."""
-        sample_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
+        if sample_path is None:
+            sample_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
+
         sample = _helper.read_file_as_value(sample_path)
         defaults = json.loads(sample)
         if key in defaults['server']:
@@ -22,33 +24,33 @@ class SimplifiedOpenvpnSuggest:
         return None
 
     @staticmethod
-    def server_dir():
+    def server_dir(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for server_dir."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         return suggestion
 
     @staticmethod
-    def easy_rsa_dir():
+    def easy_rsa_dir(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for easy_rsa_dir."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         return suggestion
 
     @staticmethod
-    def clients_dir():
+    def clients_dir(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for clients_dir."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         if suggestion is None:
             suggestion = _helper.sanitize_path(os.path.expanduser('~')) + 'openvpn-clients'
         return suggestion
 
     @staticmethod
-    def hostname():
+    def hostname(sample_path=None):
         # pylint: disable=E0602
         """Returns suggestion for hostname."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         if suggestion is None:
             suggestion = _helper.fetch_hostname_by_system()
         if suggestion is None:
@@ -56,24 +58,24 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
-    def protocol():
+    def protocol(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for protocol."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         return suggestion
 
     @staticmethod
-    def port():
+    def port(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for port."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         return suggestion
 
     @staticmethod
-    def sovpn_share_salt():
+    def sovpn_share_salt(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for sovpn_share_salt."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         if suggestion is None:
             chars = string.ascii_letters + string.digits
             length = random.randint(10, 16)
@@ -81,8 +83,8 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
-    def sovpn_share_port():
+    def sovpn_share_port(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for sovpn_share_port."""
-        suggestion = __class__.get_value_from_sample(_helper.current_method())
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
         return suggestion

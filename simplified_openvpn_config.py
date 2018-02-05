@@ -38,6 +38,7 @@ class SimplifiedOpenvpnConfig:
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
         self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
+        self.loaded = False
 
         if self.needs_setup():
             self.setup()
@@ -65,7 +66,7 @@ class SimplifiedOpenvpnConfig:
         config['server'] = dict()
 
         # Ask value for server_dir property.
-        suggestion = self.get_suggestion('server_dir')
+        suggestion = self.get_suggestion('server_dir', self.sovpn_config_file if self.loaded else None)
         while self.server_dir is None:
             prompt = '> Enter location of OpenVPN server directory on your server: '
             if suggestion:
@@ -78,7 +79,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['server_dir'] = self.server_dir
 
         # Ask value for easy_rsa_dir property.
-        suggestion = self.get_suggestion('easy_rsa_dir')
+        suggestion = self.get_suggestion('easy_rsa_dir', self.sovpn_config_file if self.loaded else None)
         while self.easy_rsa_dir is None:
             prompt = '> Enter location of Easy RSA directory on your server: '
             if suggestion:
@@ -91,7 +92,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['easy_rsa_dir'] = self.easy_rsa_dir
 
         # Ask value for clients_dir property.
-        suggestion = self.get_suggestion('clients_dir')
+        suggestion = self.get_suggestion('clients_dir', self.sovpn_config_file if self.loaded else None)
         while self.clients_dir is None:
             prompt = "> Enter location for Client's directory on your server: "
             if suggestion:
@@ -104,7 +105,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['clients_dir'] = self.clients_dir
 
         # Ask value for hostname property.
-        suggestion = self.get_suggestion('hostname')
+        suggestion = self.get_suggestion('hostname', self.sovpn_config_file if self.loaded else None)
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
             if suggestion:
@@ -117,7 +118,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['hostname'] = self.hostname
 
         # Ask value for protocol property.
-        suggestion = self.get_suggestion('protocol')
+        suggestion = self.get_suggestion('protocol', self.sovpn_config_file if self.loaded else None)
         while self.protocol is None:
             prompt = '> Select protocol that you would like to use: (TCP|UDP) '
             if suggestion:
@@ -130,7 +131,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['protocol'] = self.protocol
 
         # Ask value for port property.
-        suggestion = self.get_suggestion('port')
+        suggestion = self.get_suggestion('port', self.sovpn_config_file if self.loaded else None)
         while self.port is None:
             prompt = '> Select port that you are using for for your server: '
             if suggestion:
@@ -143,7 +144,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['port'] = self.port
 
         # Ask value for sovpn_share_salt property.
-        suggestion = self.get_suggestion('sovpn_share_salt')
+        suggestion = self.get_suggestion('sovpn_share_salt', self.sovpn_config_file if self.loaded else None)
         while self.sovpn_share_salt is None:
             prompt = "> Enter random Salt for sharing script: "
             if suggestion:
@@ -156,7 +157,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['sovpn_share_salt'] = self.sovpn_share_salt
 
         # Ask value for sovpn_share_port property.
-        suggestion = self.get_suggestion('sovpn_share_port')
+        suggestion = self.get_suggestion('sovpn_share_port', self.sovpn_config_file if self.loaded else None)
         while self.sovpn_share_port is None:
             prompt = "> Enter port for sharing script: "
             if suggestion:
@@ -204,13 +205,14 @@ class SimplifiedOpenvpnConfig:
                 for key, value in data[pool].items():
                     if key in dir(self):
                         setattr(self, key, value)
+        self.loaded = True
 
     @staticmethod
-    def get_suggestion(key):
+    def get_suggestion(key, sample_path=None):
         """Gets suggestions from _suggest class if possible."""
         method = getattr(_suggest, key, None)
         if method is not None:
-            return method()
+            return method(sample_path)
         return None
 
     def destroy(self):
