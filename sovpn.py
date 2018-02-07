@@ -14,7 +14,6 @@ from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
 
-
 if (
         len(sys.argv) == 1 or
         (sys.argv[1].lower() == 'client' and len(sys.argv) == 2) or
@@ -96,6 +95,7 @@ elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
             del CONFIG
 
     CONFIG = SimplifiedOpenvpnConfig()
+    CONFIG.wipe()
     CONFIG.setup()
 elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
     if SimplifiedOpenvpnConfig.needs_setup():

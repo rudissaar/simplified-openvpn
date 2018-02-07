@@ -192,6 +192,15 @@ class SimplifiedOpenvpnConfig:
         client_template_path = self.container + 'templates/client.mustache'
         copyfile(client_template_path, self.server_dir + 'client.mustache')
 
+    def wipe(self):
+        """Resets properies to None."""
+        properties = list(self.settings['server'].keys())
+        properties.remove('sovpn_config_file')
+
+        for property in properties:
+            if property in dir(self):
+                setattr(self, property, None)
+
     def load(self):
         """Populate properties with values if config file exists."""
         if self.sovpn_config_file is None:
@@ -252,6 +261,10 @@ class SimplifiedOpenvpnConfig:
     @server_dir.setter
     def server_dir(self, value):
         """Assings new value to server_dir property if possible."""
+        if value is None:
+            self.settings['server']['server_dir'] = None
+            return
+
         status = os.path.isdir(value)
 
         if not status:
@@ -271,6 +284,10 @@ class SimplifiedOpenvpnConfig:
     @easy_rsa_dir.setter
     def easy_rsa_dir(self, value):
         """Assings new value to easy_rsa_dir property if possible."""
+        if value is None:
+            self.settings['server']['easy_rsa_dir'] = None
+            return
+
         status = os.path.isdir(value)
 
         if not status:
@@ -290,6 +307,10 @@ class SimplifiedOpenvpnConfig:
     @clients_dir.setter
     def clients_dir(self, value):
         """Assigns new value to clients_dir property if possible."""
+        if value is None:
+            self.settings['server']['clients_dir'] = None
+            return
+
         if not os.path.isdir(value):
             _helper.create_directory(value)
 
@@ -315,6 +336,10 @@ class SimplifiedOpenvpnConfig:
     @hostname.setter
     def hostname(self, value):
         """Assigns new value to hostname property."""
+        if value is None:
+            self.settings['server']['hostname'] = None
+            return
+
         if not _helper.is_valid_hostname(value):
             print('Value that you specified as Hostname is invalid: (' + value + ')')
         else:
@@ -341,6 +366,15 @@ class SimplifiedOpenvpnConfig:
                 ipv4 = value
         return ipv4
 
+    @ipv4.setter
+    def ipv4(self, value):
+        """Assigns new value to ipv4 property."""
+        if value is None:
+            self.settings['server']['ipv4'] = None
+            return
+
+        self.settings['server']['ipv4'] = value
+
     @property
     def port(self):
         """Returns value of port property."""
@@ -349,6 +383,10 @@ class SimplifiedOpenvpnConfig:
     @port.setter
     def port(self, value):
         """Assigns new value to port property."""
+        if value is None:
+            self.settings['server']['port'] = None
+            return
+
         self.settings['server']['port'] = int(value)
 
     @property
@@ -359,6 +397,10 @@ class SimplifiedOpenvpnConfig:
     @protocol.setter
     def protocol(self, value):
         """Assigns new value to protcol property."""
+        if value is None:
+            self.settings['server']['protocol'] = None
+            return 
+
         protocols = ['udp', 'tcp']
 
         if isinstance(value, str) and value.lower() in protocols:
@@ -382,7 +424,11 @@ class SimplifiedOpenvpnConfig:
     @sovpn_share_port.setter
     def sovpn_share_port(self, value):
         """Assigns new value to sovpn_share_port property."""
-        self.settings['server']['sovpn_share_port'] = int(value)
+        if value is None:
+            self.settings['server']['sovpn_share_port'] = None
+            return
+
+        self.settings['server']['sovpn_share_port'] = value
 
     @property
     def pretty_name(self):
