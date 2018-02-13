@@ -29,6 +29,12 @@ class SimplifiedOpenvpnData:
         self._db.cursor().execute(sql, [slug, share_hash])
         self._db.commit()
 
+    def rotate_share_hash(self, slug, share_hash):
+        """Updates existing client record in clients table."""
+        sql = self.read_sql_file('update_client_hash.sql')
+        self._db.cursor().execute(sql, [share_hash, slug])
+        self._db.commit()
+
     def find_client_slug_by_share_hash(self, share_hash):
         """Returns slug that is fetched by share's hash."""
         sql = self.read_sql_file('find_client_slug_by_hash.sql')

@@ -7,6 +7,7 @@
 import os
 import socket
 import inspect
+import hashlib
 from requests import get
 
 
@@ -79,3 +80,11 @@ class SimplifiedOpenvpnHelper:
         if ipv4:
             return ipv4.strip()
         return None
+
+    @staticmethod
+    def generate_share_hash(slug, sovpn_share_salt=''):
+        """Calculates and return SOVPN share hash for specified slug."""
+        feed = (sovpn_share_salt + slug).encode('utf-8')
+        share_hash = hashlib.sha256(feed).hexdigest()
+        return share_hash
+

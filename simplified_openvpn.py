@@ -181,6 +181,14 @@ class SimplifiedOpenvpn:
         if verbose:
             print('> Share Hash: ' + self._config.share_hash)
 
+    def rotate_share_hashes(self, verbose=True):
+        """Generates share hashes for clients who can be found in database."""
+        sovpn_data = SimplifiedOpenvpnData()
+        slugs = sovpn_data.get_all_client_slugs()
+        for slug in slugs:
+            share_hash = _helper.generate_share_hash(slug, self._config.sovpn_share_salt)
+            sovpn_data.rotate_share_hash(slug, share_hash)
+
     def cleanup_client_certificates(self):
         """Cleans up client's certificates as they are no longer needed."""
         cert_files = [self._config.slug + '.crt', self._config.slug + '.key', 'ca.crt', 'ta.key']

@@ -97,6 +97,10 @@ elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
     CONFIG = SimplifiedOpenvpnConfig()
     CONFIG.wipe()
     CONFIG.setup()
+
+    if ACTION == 'edit':
+        SOVPN = SimplifiedOpenvpn()
+        SOVPN.rotate_share_hashes()
 elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
     if SimplifiedOpenvpnConfig.needs_setup():
         exit(0)

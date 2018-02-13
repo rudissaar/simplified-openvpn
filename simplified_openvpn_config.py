@@ -454,8 +454,7 @@ class SimplifiedOpenvpnConfig:
     @property
     def share_hash(self):
         """Returns generated value of sovpn_hash."""
-        feed = (self.sovpn_share_salt + self.slug).encode('utf-8')
-        share_hash = hashlib.sha256(feed).hexdigest()
+        share_hash = _helper.generate_share_hash(self.slug, self.sovpn_share_salt) 
         return share_hash
 
     @property
