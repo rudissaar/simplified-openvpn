@@ -3,7 +3,6 @@
 
 """File that contains SimplifiedOpenvpnConfig class."""
 
-import hashlib
 import os
 import json
 from shutil import copyfile
@@ -66,7 +65,9 @@ class SimplifiedOpenvpnConfig:
         config['server'] = dict()
 
         # Ask value for server_dir property.
-        suggestion = self.get_suggestion('server_dir', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('server_dir', suggestion_source)
+
         while self.server_dir is None:
             prompt = '> Enter location of OpenVPN server directory on your server: '
             if suggestion:
@@ -79,7 +80,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['server_dir'] = self.server_dir
 
         # Ask value for easy_rsa_dir property.
-        suggestion = self.get_suggestion('easy_rsa_dir', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('easy_rsa_dir', suggestion_source)
+
         while self.easy_rsa_dir is None:
             prompt = '> Enter location of Easy RSA directory on your server: '
             if suggestion:
@@ -92,7 +95,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['easy_rsa_dir'] = self.easy_rsa_dir
 
         # Ask value for clients_dir property.
-        suggestion = self.get_suggestion('clients_dir', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('clients_dir', suggestion_source)
+
         while self.clients_dir is None:
             prompt = "> Enter location for Client's directory on your server: "
             if suggestion:
@@ -105,7 +110,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['clients_dir'] = self.clients_dir
 
         # Ask value for hostname property.
-        suggestion = self.get_suggestion('hostname', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('hostname', suggestion_source)
+
         while self.hostname is None:
             prompt = '> Enter hostname of your server: '
             if suggestion:
@@ -118,7 +125,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['hostname'] = self.hostname
 
         # Ask value for protocol property.
-        suggestion = self.get_suggestion('protocol', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('protocol', suggestion_source)
+
         while self.protocol is None:
             prompt = '> Select protocol that you would like to use: (TCP|UDP) '
             if suggestion:
@@ -131,7 +140,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['protocol'] = self.protocol
 
         # Ask value for port property.
-        suggestion = self.get_suggestion('port', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('port', suggestion_source)
+
         while self.port is None:
             prompt = '> Select port that you are using for for your server: '
             if suggestion:
@@ -144,7 +155,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['port'] = self.port
 
         # Ask value for sovpn_share_salt property.
-        suggestion = self.get_suggestion('sovpn_share_salt', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('sovpn_share_salt', suggestion_source)
+
         while self.sovpn_share_salt is None:
             prompt = "> Enter random Salt for sharing script: "
             if suggestion:
@@ -157,7 +170,9 @@ class SimplifiedOpenvpnConfig:
         config['server']['sovpn_share_salt'] = self.sovpn_share_salt
 
         # Ask value for sovpn_share_port property.
-        suggestion = self.get_suggestion('sovpn_share_port', self.sovpn_config_file if self.loaded else None)
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('sovpn_share_port', suggestion_source)
+
         while self.sovpn_share_port is None:
             prompt = "> Enter port for sharing script: "
             if suggestion:
@@ -171,6 +186,7 @@ class SimplifiedOpenvpnConfig:
 
         # Ask value for sovpn_config_file property.
         suggestion = self.server_dir + 'sovpn.json'
+
         while self.sovpn_config_file is None:
             prompt = "> Enter location for Simplified OpenVPN's config file: "
             if suggestion:
@@ -197,9 +213,9 @@ class SimplifiedOpenvpnConfig:
         properties = list(self.settings['server'].keys())
         properties.remove('sovpn_config_file')
 
-        for property in properties:
-            if property in dir(self):
-                setattr(self, property, None)
+        for current_property in properties:
+            if current_property in dir(self):
+                setattr(self, current_property, None)
 
     def load(self):
         """Populate properties with values if config file exists."""
@@ -399,7 +415,7 @@ class SimplifiedOpenvpnConfig:
         """Assigns new value to protcol property."""
         if value is None:
             self.settings['server']['protocol'] = None
-            return 
+            return
 
         protocols = ['udp', 'tcp']
 
@@ -454,7 +470,7 @@ class SimplifiedOpenvpnConfig:
     @property
     def share_hash(self):
         """Returns generated value of sovpn_hash."""
-        share_hash = _helper.generate_share_hash(self.slug, self.sovpn_share_salt) 
+        share_hash = _helper.generate_share_hash(self.slug, self.sovpn_share_salt)
         return share_hash
 
     @property
