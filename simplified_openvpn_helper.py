@@ -87,4 +87,3 @@ class SimplifiedOpenvpnHelper:
         feed = (sovpn_share_salt + slug).encode('utf-8')
         share_hash = hashlib.sha256(feed).hexdigest()
         return share_hash
-

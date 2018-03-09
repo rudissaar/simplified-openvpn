@@ -170,7 +170,7 @@ class SimplifiedOpenvpn:
 
         # Clean up.
         self.cleanup_client_certificates()
-        
+
         if verbose:
             print('> Client "' + self._config.slug + '" was successfully created.')
 
@@ -181,7 +181,7 @@ class SimplifiedOpenvpn:
         if verbose:
             print('> Share Hash: ' + self._config.share_hash)
 
-    def rotate_share_hashes(self, verbose=True):
+    def rotate_share_hashes(self):
         """Generates share hashes for clients who can be found in database."""
         sovpn_data = SimplifiedOpenvpnData()
         slugs = sovpn_data.get_all_client_slugs()
