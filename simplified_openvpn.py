@@ -75,6 +75,9 @@ class SimplifiedOpenvpn:
             destination = self._config.client_dir + client_file
             os.rename(source, destination)
 
+        # Remove CSR, we don't need it anymore.
+        os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.csr')
+
     def copy_ca_file(self):
         """Copies certificate authority key to client's directory."""
         source = self._config.easy_rsa_dir + 'keys/ca.crt'
