@@ -67,13 +67,16 @@ class SimplifiedOpenvpn:
                 return True
         return False
 
-    def move_client_files(self):
-        """Moves client's keys to client's directory."""
+    def copy_client_files(self):
+        """Copies client's keys to client's directory."""
         client_files = [self._config.slug + '.crt', self._config.slug + '.key']
         for client_file in client_files:
             source = self._config.easy_rsa_dir + 'keys/' + client_file
             destination = self._config.client_dir + client_file
-            os.rename(source, destination)
+            copyfile(source, destination)
+
+        # Remove Private Key from keys directory to make things a little bit more secure.
+        os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.key')
 
         # Remove CSR, we don't need it anymore.
         os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.csr')
@@ -85,7 +88,7 @@ class SimplifiedOpenvpn:
         copyfile(source, destination)
 
     def copy_ta_file(self):
-        """Copies TLS auth key to client's directory."""
+        """Copies TLS Auth key to client's directory."""
         source = self._config.server_dir + 'ta.key'
         destination = self._config.client_dir + 'ta.key'
         copyfile(source, destination)
@@ -219,7 +222,7 @@ class SimplifiedOpenvpn:
         # Config generation.
         self._config.client_dir = self._config.slug
         self.create_pretty_name_file()
-        self.move_client_files()
+        self.copy_client_files()
         self.copy_ca_file()
         self.copy_ta_file()
         self.generate_config_files()
