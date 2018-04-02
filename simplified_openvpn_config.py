@@ -174,12 +174,18 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('sovpn_share_port', suggestion_source)
 
         while self.sovpn_share_port is None:
-            prompt = "> Enter port for sharing script: "
+            prompt = "> Enter TCP port for sharing script: "
             if suggestion:
                 prompt += '[' + str(suggestion) + '] '
             sovpn_share_port = input(prompt)
             if sovpn_share_port.strip() == '':
                 sovpn_share_port = suggestion
+
+            # Make sure server and sharing port are different.
+            if self.protocol == 'tcp' and self.port == sovpn_share_port:
+                print('> Port ' + str(sovpn_share_port) + '/tcp is already used by server.')
+                sovpn_share_port = None
+
             self.sovpn_share_port = sovpn_share_port
 
         config['server']['sovpn_share_port'] = self.sovpn_share_port
