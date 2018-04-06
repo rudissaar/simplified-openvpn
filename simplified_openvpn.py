@@ -203,6 +203,8 @@ class SimplifiedOpenvpn:
 
     def create_client(self, pretty_name=None):
         """Entry point for client creation process."""
+        self._config.pretty_name = pretty_name
+
         if self._config.pretty_name is None:
             while pretty_name is None:
                 pretty_name = input('> Enter Full Name for client: ').strip()

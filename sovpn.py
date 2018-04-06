@@ -19,9 +19,14 @@ if (
         len(sys.argv) == 1 or
         (sys.argv[1].lower() == 'client' and len(sys.argv) == 2) or
         (sys.argv[1].lower() == 'client' and sys.argv[2].lower() == 'create')):
-    # Client.
+    # Crate client.
+    if len(sys.argv) > 3:
+        PRETTY_NAME = ' '.join(sys.argv[3:]).strip()
+    else:
+        PRETTY_NAME = None
+
     SOVPN = SimplifiedOpenvpn()
-    SOVPN.create_client()
+    SOVPN.create_client(PRETTY_NAME)
 elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # Share.
     CONFIG = SimplifiedOpenvpnConfig()
