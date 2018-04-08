@@ -460,7 +460,8 @@ class SimplifiedOpenvpnConfig:
     @pretty_name.setter
     def pretty_name(self, value):
         """Assigns new value to pretty_name property."""
-        self.settings['client']['pretty_name'] = value.strip()
+        if value is not None:
+            self.settings['client']['pretty_name'] = value.strip()
 
     @property
     def slug(self):
