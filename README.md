@@ -1,6 +1,6 @@
 # Simplified OpenVPN
 
-Simple management interface for OpenVPN Community Edition that makes generating new clients fast and easy, it also provides extra functionalities like sharing client configuration files via web interface.
+Simple client creation management interface for OpenVPN Community Edition that makes generating new clients fast and easy, it also provides extra functionalities like sharing client configuration files via web interface.
 
 ### Requirements
 * python3.x
