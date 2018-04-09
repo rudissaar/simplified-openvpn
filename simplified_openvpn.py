@@ -229,3 +229,9 @@ class SimplifiedOpenvpn:
         self.copy_ta_file()
         self.generate_config_files()
         self.insert_share_hash()
+
+    def revoke_client(self, slug):
+        """Revokes client's certificates. It only really work if your server uses CRL."""
+        cmd = './revoke-full ' + slug + ' 1> /dev/null 2>&1'
+        run(cmd, shell=True, cwd=self._config.easy_rsa_dir)
+        print('> Revoked client with common name of: "' + slug + '".')
