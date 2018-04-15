@@ -6,6 +6,7 @@
 
 import sys
 import os
+import logging
 import pystache
 from flask import Flask
 from flask import send_file
@@ -14,6 +15,9 @@ from simplified_openvpn import SimplifiedOpenvpn
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
+
+LOG = logging.getLogger('werkzeug')
+LOG.setLevel(logging.ERROR)
 
 if (
         len(sys.argv) == 1 or

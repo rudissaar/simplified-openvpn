@@ -27,6 +27,7 @@ class SimplifiedOpenvpnConfig:
     settings['server']['port'] = None
     settings['server']['sovpn_share_salt'] = None
     settings['server']['sovpn_share_port'] = None
+    settings['server']['sovpn_share_url'] = None
     settings['server']['sovpn_config_file'] = None
 
     settings['client']['pretty_name'] = None
@@ -60,6 +61,7 @@ class SimplifiedOpenvpnConfig:
         # pylint: disable=R0912
         # pylint: disable=R0914
         # pylint: disable=R0915
+        # pylint: disable=W0125
         """Set up settings for Simplified OpenVPN on current system."""
         config = dict()
         config['server'] = dict()
@@ -159,7 +161,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('sovpn_share_salt', suggestion_source)
 
         while self.sovpn_share_salt is None:
-            prompt = "> Enter random Salt for sharing script: "
+            prompt = '> Enter random Salt for sharing script: '
             if suggestion:
                 prompt += '[' + suggestion + '] '
             sovpn_share_salt = input(prompt)
@@ -174,7 +176,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('sovpn_share_port', suggestion_source)
 
         while self.sovpn_share_port is None:
-            prompt = "> Enter TCP port for sharing script: "
+            prompt = '> Enter TCP port for sharing script: '
             if suggestion:
                 prompt += '[' + str(suggestion) + '] '
             sovpn_share_port = input(prompt)
@@ -183,12 +185,30 @@ class SimplifiedOpenvpnConfig:
 
             # Make sure server and sharing port are different.
             if self.protocol == 'tcp' and self.port == sovpn_share_port:
-                print('> Port ' + str(sovpn_share_port) + '/tcp is already used by server.')
+                print('> Port ' + str(sovpn_share_port) + '/TCP is already used by server.')
                 sovpn_share_port = None
 
             self.sovpn_share_port = sovpn_share_port
 
         config['server']['sovpn_share_port'] = self.sovpn_share_port
+
+        # Ask value for sovpn_share_url property.
+        if False:
+            # We are not doing anything with this property yet, so we skip until we actually do.
+            suggestion = 'http://' + self.hostname + ':' + self.sovpn_share_port + '/'
+
+            while self.sovpn_share_url is None:
+                prompt = '> Enter URL prefix for sharing script: '
+
+                if suggestion:
+                    prompt += '[' + suggestion + '] '
+                sovpn_share_url = input(prompt)
+                if sovpn_share_url.strip() == '':
+                    sovpn_share_url = suggestion
+
+                self.sovpn_share_url = sovpn_share_url
+
+            config['server']['sovpn_share_url'] = self.sovpn_share_url
 
         # Ask value for sovpn_config_file property.
         suggestion = self.server_dir + 'sovpn.json'
@@ -451,6 +471,18 @@ class SimplifiedOpenvpnConfig:
             return
 
         self.settings['server']['sovpn_share_port'] = value
+
+    @property
+    def sovpn_share_url(self):
+        """Returns value of sovpn_share_property."""
+        return self.settings['server']['sovpn_share_url']
+
+    @sovpn_share_url.setter
+    def sovpn_share_url(self, value):
+        """Assings new value to sovpn_share_url property."""
+        if not value.endswith('/'):
+            value += '/'
+        self.settings['server']['sovpn_share_url'] = value
 
     @property
     def pretty_name(self):
