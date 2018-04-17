@@ -85,5 +85,5 @@ class SimplifiedOpenvpnHelper:
     def generate_share_hash(slug, sovpn_share_salt=''):
         """Calculates and return SOVPN share hash for specified slug."""
         feed = (sovpn_share_salt + slug).encode('utf-8')
-        share_hash = hashlib.sha256(feed).hexdigest()
+        share_hash = hashlib.sha1(feed).hexdigest()
         return share_hash
