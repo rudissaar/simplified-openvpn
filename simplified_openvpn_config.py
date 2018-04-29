@@ -82,8 +82,7 @@ class SimplifiedOpenvpnConfig:
         config['server']['server_dir'] = self.server_dir
 
         # Ask value for easy_rsa_dir property.
-        suggestion_source = self.sovpn_config_file if self.loaded else None
-        suggestion = self.get_suggestion('easy_rsa_dir', suggestion_source)
+        suggestion = self.server_dir + 'easy-rsa'
 
         while self.easy_rsa_dir is None:
             prompt = '> Enter location of Easy RSA directory on your server: '
@@ -237,6 +236,8 @@ class SimplifiedOpenvpnConfig:
     def wipe(self):
         """Resets properies to None."""
         properties = list(self.settings['server'].keys())
+        properties.remove('easy_rsa_dir')
+        properties.remove('sovpn_share_url')
         properties.remove('sovpn_config_file')
 
         for current_property in properties:
