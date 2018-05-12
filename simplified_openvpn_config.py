@@ -9,6 +9,7 @@ from shutil import copyfile
 from slugify import slugify
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_suggest import SimplifiedOpenvpnSuggest as _suggest
+from simplified_openvpn_prompt import SimplifiedOpenvpnPrompt as _prompt
 
 class SimplifiedOpenvpnConfig:
     # pylint: disable=R0902
@@ -71,9 +72,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('server_dir', suggestion_source)
 
         while self.server_dir is None:
-            prompt = '> Enter location of OpenVPN server directory on your server: '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('server_dir', suggestion)
             server_dir = input(prompt)
             if server_dir.strip() == '':
                 server_dir = suggestion
@@ -85,9 +84,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.server_dir + 'easy-rsa'
 
         while self.easy_rsa_dir is None:
-            prompt = '> Enter location of Easy RSA directory on your server: '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('easy_rsa_dir', suggestion)
             easy_rsa_dir = input(prompt)
             if easy_rsa_dir.strip() == '':
                 easy_rsa_dir = suggestion
@@ -100,9 +97,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('clients_dir', suggestion_source)
 
         while self.clients_dir is None:
-            prompt = "> Enter location for Client's directory on your server: "
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('clients_dir', suggestion)
             clients_dir = input(prompt)
             if clients_dir.strip() == '':
                 clients_dir = suggestion
@@ -115,9 +110,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('hostname', suggestion_source)
 
         while self.hostname is None:
-            prompt = '> Enter hostname of your server: '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('hostname', suggestion)
             hostname = input(prompt)
             if hostname.strip() == '':
                 hostname = suggestion
@@ -130,9 +123,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('protocol', suggestion_source)
 
         while self.protocol is None:
-            prompt = '> Select protocol that you would like to use: (TCP|UDP) '
-            if suggestion:
-                prompt += '[' + suggestion.upper() + '] '
+            prompt = _prompt.get('protocol', suggestion)
             protocol = input(prompt)
             if protocol.strip() == '':
                 protocol = suggestion
@@ -145,9 +136,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('port', suggestion_source)
 
         while self.port is None:
-            prompt = '> Select port that you are using for for your server: '
-            if suggestion:
-                prompt += '[' + str(suggestion) + '] '
+            prompt = _prompt.get('port', suggestion)
             port = input(prompt)
             if port.strip() == '':
                 port = suggestion
@@ -160,9 +149,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('sovpn_share_salt', suggestion_source)
 
         while self.sovpn_share_salt is None:
-            prompt = '> Enter random Salt for sharing script: '
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('sovpn_share_salt', suggestion)
             sovpn_share_salt = input(prompt)
             if sovpn_share_salt.strip() == '':
                 sovpn_share_salt = suggestion
@@ -175,9 +162,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.get_suggestion('sovpn_share_port', suggestion_source)
 
         while self.sovpn_share_port is None:
-            prompt = '> Enter TCP port for sharing script: '
-            if suggestion:
-                prompt += '[' + str(suggestion) + '] '
+            prompt = _prompt.get('sovpn_share_port', suggestion)
             sovpn_share_port = input(prompt)
             if sovpn_share_port.strip() == '':
                 sovpn_share_port = suggestion
@@ -186,7 +171,6 @@ class SimplifiedOpenvpnConfig:
             if self.protocol == 'tcp' and self.port == sovpn_share_port:
                 print('> Port ' + str(sovpn_share_port) + '/TCP is already used by server.')
                 sovpn_share_port = None
-
             self.sovpn_share_port = sovpn_share_port
 
         config['server']['sovpn_share_port'] = self.sovpn_share_port
@@ -197,14 +181,10 @@ class SimplifiedOpenvpnConfig:
             suggestion = 'http://' + self.hostname + ':' + self.sovpn_share_port + '/'
 
             while self.sovpn_share_url is None:
-                prompt = '> Enter URL prefix for sharing script: '
-
-                if suggestion:
-                    prompt += '[' + suggestion + '] '
+                prompt = _prompt.get('sovpn_share_url', suggestion)
                 sovpn_share_url = input(prompt)
                 if sovpn_share_url.strip() == '':
                     sovpn_share_url = suggestion
-
                 self.sovpn_share_url = sovpn_share_url
 
             config['server']['sovpn_share_url'] = self.sovpn_share_url
@@ -213,9 +193,7 @@ class SimplifiedOpenvpnConfig:
         suggestion = self.server_dir + 'sovpn.json'
 
         while self.sovpn_config_file is None:
-            prompt = "> Enter location for Simplified OpenVPN's config file: "
-            if suggestion:
-                prompt += '[' + suggestion + '] '
+            prompt = _prompt.get('sovpn_config_file', suggestion)
             sovpn_config_file = input(prompt)
             if sovpn_config_file.strip() == '':
                 sovpn_config_file = suggestion
