@@ -9,6 +9,7 @@ class SimplifiedOpenvpnPrompt:
 
     prompts['server_dir'] = 'Enter location of OpenVPN server directory on your server'
     prompts['easy_rsa_dir'] = 'Enter location of Easy RSA directory on your server'
+    prompts['easy_rsa_ver'] = 'Select version of Easy RSA that you are using (2|3)'
     prompts['clients_dir'] = "Enter location for Client's directory on your server"
     prompts['hostname'] = 'Enter hostname of your server'
     prompts['protocol'] = 'Select protocol that you would like to use: (TCP|UDP)'

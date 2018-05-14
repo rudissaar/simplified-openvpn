@@ -21,6 +21,7 @@ class SimplifiedOpenvpnConfig:
 
     settings['server']['server_dir'] = None
     settings['server']['easy_rsa_dir'] = None
+    settings['server']['easy_rsa_ver'] = None
     settings['server']['clients_dir'] = None
     settings['server']['hostname'] = None
     settings['server']['ipv4'] = None
@@ -91,6 +92,19 @@ class SimplifiedOpenvpnConfig:
             self.easy_rsa_dir = easy_rsa_dir
 
         config['server']['easy_rsa_dir'] = self.easy_rsa_dir
+
+        # Ask value for easy_rsa_ver property.
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('easy_rsa_ver', suggestion_source)
+
+        while self.easy_rsa_ver is None:
+            prompt = _prompt.get('easy_rsa_ver', suggestion)
+            easy_rsa_ver = input(prompt)
+            if easy_rsa_ver.strip() == '':
+                easy_rsa_ver = suggestion
+            self.easy_rsa_ver = easy_rsa_ver
+
+        config['server']['easy_rsa_ver'] = self.easy_rsa_ver
 
         # Ask value for clients_dir property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
@@ -215,6 +229,7 @@ class SimplifiedOpenvpnConfig:
         """Resets properies to None."""
         properties = list(self.settings['server'].keys())
         properties.remove('easy_rsa_dir')
+        properties.remove('easy_rsa_ver')
         properties.remove('sovpn_share_url')
         properties.remove('sovpn_config_file')
 
@@ -293,13 +308,12 @@ class SimplifiedOpenvpnConfig:
             print('Make sure that the value you gave meets following requirements:')
             print('> Does the directory really exist in your filesystem?')
             print('> The specified directory has write and execute permissions.')
-            exit(1)
-
-        self.settings['server']['server_dir'] = _helper.sanitize_path(value)
+        else:
+            self.settings['server']['server_dir'] = _helper.sanitize_path(value)
 
     @property
     def easy_rsa_dir(self):
-        """Returns directory of EasyRSA utils."""
+        """Returns directory of Easy RSA utils."""
         return self.settings['server']['easy_rsa_dir']
 
     @easy_rsa_dir.setter
@@ -316,9 +330,21 @@ class SimplifiedOpenvpnConfig:
             print('Make sure that the value you gave meets following requirements:')
             print('> Does the directory really exist in your filesystem?')
             print('> The specified directory has write and execute permissions.')
-            exit(1)
+        else:
+            self.settings['server']['easy_rsa_dir'] = _helper.sanitize_path(value)
 
-        self.settings['server']['easy_rsa_dir'] = _helper.sanitize_path(value)
+    @property
+    def easy_rsa_ver(self):
+        """Returns version of Easy RSA."""
+        return self.settings['server']['easy_rsa_ver']
+
+    @easy_rsa_ver.setter
+    def easy_rsa_ver(self, value):
+        """Assigns new value to easy_rsa_ver property."""
+        version = int(value)
+
+        if version in [2, 3]:
+            self.settings['server']['easy_rsa_ver'] = version
 
     @property
     def clients_dir(self):

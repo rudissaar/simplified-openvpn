@@ -31,6 +31,13 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
+    def easy_rsa_ver(sample_path=None):
+        # pylint: disable=E0602
+        """Getting suggestion for easy_rsa_ver."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
+        return suggestion
+
+    @staticmethod
     def clients_dir(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for clients_dir."""
