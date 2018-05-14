@@ -2,6 +2,9 @@
 
 Simple client creation management interface for OpenVPN Community Edition that makes generating new clients fast and easy, it also provides extra functionalities like sharing client configuration files via web interface.
 
+## `Important Notice`
+> This project is currently only tested on Debian 9 GNU/Linux and only works with Easy RSA 2, soon it should be also be compatible with Easy RSA 3.
+
 ### Requirements
 * python3.x
 * python3-pystache
