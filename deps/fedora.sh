@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Script that installs native dependencies on Debian GNU/Linux.
+# Script that installs native dependencies on Fedora GNU/Linux.
 
 # You need root permissions to run this script.
 if [[ "${UID}" != '0' ]]; then
@@ -7,8 +7,8 @@ if [[ "${UID}" != '0' ]]; then
     exit 1
 fi
 
-apt-get update
-apt-get install -y \
+dnf check-update \
+dnf install -y \
     python3 \
     python3-pystache \
     python3-flask \
