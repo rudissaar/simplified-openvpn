@@ -18,7 +18,8 @@ class SimplifiedOpenvpn:
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
         self._config = SimplifiedOpenvpnConfig()
-        self.load_env()
+        if self._config.easy_rsa_ver == 2:
+            self.load_env()
 
     def load_env(self):
         """Exports environment variables from vars file."""
@@ -69,21 +70,36 @@ class SimplifiedOpenvpn:
 
     def copy_client_files(self):
         """Copies client's keys to client's directory."""
-        client_files = [self._config.slug + '.crt', self._config.slug + '.key']
+        client_files = list()
+
+        if self._config.easy_rsa_ver == 2:
+            client_files.append('keys/' + self._config.slug + '.crt')
+            client_files.append('keys/' + self._config.slug + '.key')
+        else:
+            client_files.append('pki/issued/' + self._config.slug + '.crt')
+            client_files.append('pki/private/' + self._config.slug + '.key')
+
         for client_file in client_files:
-            source = self._config.easy_rsa_dir + 'keys/' + client_file
-            destination = self._config.client_dir + client_file
+            source = self._config.easy_rsa_dir + client_file
+            destination = self._config.client_dir + os.path.basename(client_file)
             copyfile(source, destination)
 
         # Remove Private Key from keys directory to make things a little bit more secure.
-        os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.key')
-
-        # Remove CSR, we don't need it anymore.
-        os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.csr')
+        # Also remove CSR, as we don't need it anymore.
+        if self._config.easy_rsa_dir == 2:
+            os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.key')
+            os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.csr')
+        else:
+            os.remove(self._config.easy_rsa_dir + 'pki/private/' + self._config.slug + '.key')
+            os.remove(self._config.easy_rsa_dir + 'pki/reqs/' + self._config.slug + '.req')
 
     def copy_ca_file(self):
         """Copies certificate authority key to client's directory."""
-        source = self._config.easy_rsa_dir + 'keys/ca.crt'
+        if self._config.easy_rsa_dir == 2:
+            source = self._config.easy_rsa_dir + 'keys/ca.crt'
+        else:
+            source = self._config.easy_rsa_dir + 'pki/ca.crt'
+
         destination = self._config.client_dir + 'ca.crt'
         copyfile(source, destination)
 
@@ -218,7 +234,11 @@ class SimplifiedOpenvpn:
             self.client_exists(True)
 
         # Key generation.
-        cmd = './build-key ' + self._config.slug + ' 1> /dev/null'
+        if self._config.easy_rsa_ver == 2:
+            cmd = './build-key ' + self._config.slug + ' 1> /dev/null'
+        else:
+            cmd = './easyrsa build-client-full ' + self._config.slug + ' nopass 1> /dev/null'
+
         run(cmd, shell=True, cwd=self._config.easy_rsa_dir)
 
         # Config generation.
