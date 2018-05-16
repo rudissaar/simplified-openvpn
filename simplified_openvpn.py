@@ -8,6 +8,7 @@ import zipfile
 from shutil import copyfile
 from subprocess import run
 import pystache
+
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
@@ -49,7 +50,7 @@ class SimplifiedOpenvpn:
                         value = easy_rsa + '/openssl.cnf'
                     value = value.replace('$EASY_RSA', easy_rsa)
 
-                    # Assing new enviorment variable.
+                    # Assign new enviorment variable.
                     os.environ[key] = value
 
     def client_exists(self, verbose=True):
@@ -95,11 +96,7 @@ class SimplifiedOpenvpn:
 
     def copy_ca_file(self):
         """Copies certificate authority key to client's directory."""
-        if self._config.easy_rsa_dir == 2:
-            source = self._config.easy_rsa_dir + 'keys/ca.crt'
-        else:
-            source = self._config.easy_rsa_dir + 'pki/ca.crt'
-
+        source = self._config.server_dir + 'ca.crt'
         destination = self._config.client_dir + 'ca.crt'
         copyfile(source, destination)
 
@@ -125,7 +122,7 @@ class SimplifiedOpenvpn:
         template = self._config.server_dir + 'client.mustache'
         if not os.path.isfile(template):
             print("> Template for client's config is missing, exiting.")
-            exit(1)
+            return
 
         renderer = pystache.Renderer()
         client_dir = self._config.client_dir
@@ -252,6 +249,10 @@ class SimplifiedOpenvpn:
 
     def revoke_client(self, slug):
         """Revokes client's certificates. It only really work if your server uses CRL."""
-        cmd = './revoke-full ' + slug + ' 1> /dev/null 2>&1'
+        if self._config.easy_rsa_ver == 2:
+            cmd = './revoke-full ' + slug + ' 1> /dev/null 2>&1'
+        else:
+            cmd = 'echo yes | ./easyrsa revoke ' + slug + ' 1> /dev/null 2>&1'
+
         run(cmd, shell=True, cwd=self._config.easy_rsa_dir)
         print('> Revoked client with common name of: "' + slug + '".')
