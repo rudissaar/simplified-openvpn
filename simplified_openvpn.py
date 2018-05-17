@@ -87,7 +87,7 @@ class SimplifiedOpenvpn:
 
         # Remove Private Key from keys directory to make things a little bit more secure.
         # Also remove CSR, as we don't need it anymore.
-        if self._config.easy_rsa_dir == 2:
+        if self._config.easy_rsa_ver == 2:
             os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.key')
             os.remove(self._config.easy_rsa_dir + 'keys/' + self._config.slug + '.csr')
         else:
