@@ -31,16 +31,17 @@ class SimplifiedOpenvpnConfig:
     settings['server']['sovpn_share_port'] = None
     settings['server']['sovpn_share_url'] = None
     settings['server']['sovpn_config_file'] = None
+    settings['server']['needs_rotation'] = None
 
     settings['client']['pretty_name'] = None
     settings['client']['slug'] = None
     settings['client']['share_hash'] = None
-    settings['client']['client_dir'] = None
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
         self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
         self.loaded = False
+        self.needs_rotation = False
 
         if self.needs_setup():
             self.setup()
@@ -170,6 +171,10 @@ class SimplifiedOpenvpnConfig:
             self.sovpn_share_salt = sovpn_share_salt
 
         config['server']['sovpn_share_salt'] = self.sovpn_share_salt
+
+        # If you changed share salt, then you need to rotate hashes for everybody.
+        if self.loaded and suggestion != self.sovpn_share_salt:
+            self.needs_rotation = True
 
         # Ask value for sovpn_share_port property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
