@@ -53,19 +53,26 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # If slugs are specified, then only allow sharing for specific clients.
     if len(sys.argv) > 2:
         # As we are only serving files to specific clients we can aswell output their hashes.
-        print('> Sharing mappings:')
-
         ALLOWED_SLUGS = list()
         for slug in sys.argv[2:]:
             ALLOWED_SLUGS.append(slug)
             share_hash = DB.find_client_share_hash_by_slug(slug)
+            print('> Client       : ' + slug)
+
             if share_hash:
-                print('> ' + slug + ' : ' + share_hash)
+                print('> Sharing Hash : ' + share_hash)
             else:
-                print('> ' + slug + ' : ---')
+                print('> Sharing Hash : ---')
+
+            if share_hash and CONFIG.sovpn_share_url:
+                print('> Sharing URL  : ' + CONFIG.sovpn_share_url + share_hash)
+            else:
+                print('> Sharing URL  : ---')
+
+            print()
     else:
         print('> Sharing confirguration files for everybody.')
-    print()
+        print()
 
     @APP.route('/<share_hash>')
     def client_page(share_hash):

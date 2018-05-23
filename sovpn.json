@@ -1,6 +1,6 @@
 {
     "server": {
-        "server_dir": "/etc/openvpn/",
+        "server_dir": "/etc/openvpn",
         "easy_rsa_ver": 3,
         "clients_dir": null,
         "hostname": null,

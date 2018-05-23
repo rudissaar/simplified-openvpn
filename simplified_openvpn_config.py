@@ -195,18 +195,16 @@ class SimplifiedOpenvpnConfig:
         config['server']['sovpn_share_port'] = self.sovpn_share_port
 
         # Ask value for sovpn_share_url property.
-        if False:
-            # We are not doing anything with this property yet, so we skip until we actually do.
-            suggestion = 'http://' + self.hostname + ':' + self.sovpn_share_port + '/'
+        suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
 
-            while self.sovpn_share_url is None:
-                prompt = _prompt.get('sovpn_share_url', suggestion)
-                sovpn_share_url = input(prompt)
-                if sovpn_share_url.strip() == '':
-                    sovpn_share_url = suggestion
-                self.sovpn_share_url = sovpn_share_url
+        while self.sovpn_share_url is None:
+            prompt = _prompt.get('sovpn_share_url', suggestion)
+            sovpn_share_url = input(prompt)
+            if sovpn_share_url.strip() == '':
+                sovpn_share_url = suggestion
+            self.sovpn_share_url = sovpn_share_url
 
-            config['server']['sovpn_share_url'] = self.sovpn_share_url
+        config['server']['sovpn_share_url'] = self.sovpn_share_url
 
         # Ask value for sovpn_config_file property.
         suggestion = self.server_dir + 'sovpn.json'

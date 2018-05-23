@@ -97,7 +97,7 @@ class SimplifiedOpenvpn:
     def copy_ca_file(self):
         """Copies certificate authority key to client's directory."""
         if self._config.easy_rsa_ver == 2:
-            source = self._config.easy_rsa_dir + 'ca.crt'
+            source = self._config.easy_rsa_dir + 'keys/ca.crt'
         else:
             source = self._config.easy_rsa_dir + 'pki/ca.crt'
 
