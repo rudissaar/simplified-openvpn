@@ -3,3 +3,5 @@ __pycache__
 
 sovpn_config_pointer.txt
 sovpn.sqlite
+local/*
+!local/.gitkeep

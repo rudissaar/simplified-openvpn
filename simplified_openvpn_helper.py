@@ -41,8 +41,13 @@ class SimplifiedOpenvpnHelper:
     @staticmethod
     def sanitize_path(path):
         """Makes sure that path are ending with forward slash."""
-        if not path.endswith('/'):
-            path = path + '/'
+        if os.path.isfile(path):
+            if path.endswith('/'):
+                path = path.rstrip('/')
+        elif os.path.isdir(path):
+            if not path.endswith('/'):
+                path = path + '/'
+
         return path
 
     @staticmethod

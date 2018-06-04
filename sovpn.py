@@ -15,6 +15,7 @@ from simplified_openvpn import SimplifiedOpenvpn
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
+from simplified_openvpn_share import SimplifiedOpenvpnShare
 
 LOG = logging.getLogger('werkzeug')
 LOG.setLevel(logging.ERROR)
@@ -46,6 +47,7 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # Share.
     CONFIG = SimplifiedOpenvpnConfig()
     DB = SimplifiedOpenvpnData()
+    SHARE = SimplifiedOpenvpnShare()
     APP = Flask(__name__)
     PATH = CONFIG.clients_dir
     ALLOWED_SLUGS = None
@@ -85,6 +87,7 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
                 abort(403)
 
         data = dict()
+        data['css'] = SHARE.css
         data['client_name'] = slug
         data['list_items'] = ''
 
