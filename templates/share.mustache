@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        
         {{#css}}
            <style>
                 {{{css}}}
@@ -13,12 +13,17 @@
         <title>{{client_name}}</title>
     </head>
     <body>
-        <h1>{{client_name}}</h1>
+        <div class="container">
+            <h1>{{client_name}}</h1>
+            <small>Common name: {{slug}}</small>
+
+            <hr>
         
-        {{#list_items}}
-        <ul>
-            {{{list_items}}}
-        </ul>
-        {{/list_items}}
+            {{#list_items}}
+            <ul>
+                {{{list_items}}}
+            </ul>
+            {{/list_items}}
+        </div>
     </body>
 </html>
