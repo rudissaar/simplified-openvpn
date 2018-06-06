@@ -19,7 +19,7 @@ body {
     font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
     margin: 0 auto;
     max-width: 620px;
-    padding: 20px;
+    padding: 20px 20px 50px;
     width: 100%;
 }
 
@@ -32,3 +32,45 @@ hr {
     border: 0;
     height: 1px;
 }
+
+ul {
+    list-style: square;
+    padding-left: 18px;
+}
+
+li {
+    margin: 3px 0;
+}
+
+a {
+    color: #1569C7;
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 5px;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #003795;
+}
+
+@media screen and (max-width: 767px) {
+    body {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 479px) {
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        padding: 0;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}
+
