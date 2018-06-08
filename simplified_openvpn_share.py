@@ -20,15 +20,23 @@ class SimplifiedOpenvpnShare:
             self.override = None
 
     @property
+    def css_path(self):
+        """Method that return path of CSS file that will be used for sharing page."""
+        if self.override:
+            path = self.override + 'share.css'
+            if os.path.isfile(path):
+                return path
+
+        path = self.container + 'style/share.css'
+        if os.path.isfile(path):
+            return path
+
+        return None
+
+    @property
     def css(self):
         """Method that return CSS content for sharing page."""
-        if self.override:
-            override = self.override + 'share.css'
-            if os.path.isfile(override):
-                return _helper.read_file_as_value(override)
+        if self.css_path:
+            return _helper.read_file_as_value(self.css_path)
 
-        style = self.container + 'style/share.css'
-        if os.path.isfile(style):
-            return _helper.read_file_as_value(style)
-        else:
-            return None
+        return None
