@@ -76,6 +76,15 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         print('> Sharing confirguration files for everybody.')
         print()
 
+    @APP.after_request
+    def add_headers(request):
+        """Adds headers for request that will prevent caching of sensitive files."""
+        request.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        request.headers['Pragma'] = 'no-cache'
+        request.headers['Expires'] = '0'
+        request.headers['Cache-Control'] = 'public, max-age=0'
+        return request
+
     @APP.route('/<share_hash>')
     def client_page(share_hash):
         """Display all flavours of client's config files to user."""
