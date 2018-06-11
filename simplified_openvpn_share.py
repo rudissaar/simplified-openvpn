@@ -40,3 +40,17 @@ class SimplifiedOpenvpnShare:
             return _helper.read_file_as_value(self.css_path)
 
         return None
+
+    @property
+    def template_path(self):
+        """Method that return path of template file that will be used for sharing page."""
+        if self.override:
+            path = self.override + 'share.mustache'
+            if os.path.isfile(path):
+                return path
+
+            path = self.container + 'templates/share.mustache'
+            if os.path.isfile(path):
+                return path
+
+        return None

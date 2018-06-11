@@ -97,13 +97,12 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
             if config_file == 'pretty-name.txt':
                 data['client_name'] = _helper.read_file_as_value(PATH + slug + '/' + config_file)
                 continue
-                data['client_name'] = slug
 
             anchor = '<a href="' + share_hash + '/' + config_file +  '">' + config_file + '</a>'
             data['list_items'] += '<li>' + anchor + '</li>'
 
         renderer = pystache.Renderer()
-        return renderer.render_path('./templates/share.mustache', data)
+        return renderer.render_path(SHARE.template_path, data)
 
     @APP.route('/<share_hash>/<config_file>')
     def download_config(share_hash, config_file):
