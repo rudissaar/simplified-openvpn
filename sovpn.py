@@ -79,10 +79,9 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     @APP.after_request
     def add_headers(request):
         """Adds headers for request that will prevent caching of sensitive files."""
-        request.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         request.headers['Pragma'] = 'no-cache'
         request.headers['Expires'] = '0'
-        request.headers['Cache-Control'] = 'public, max-age=0'
+        request.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, public, max-age=0'
         return request
 
     @APP.route('/<share_hash>')
