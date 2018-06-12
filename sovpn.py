@@ -69,18 +69,14 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
         for slug in ALLOWED_SLUGS:
             share_hash = DB.find_client_share_hash_by_slug(slug)
-            print('> Client       : ' + slug)
+            text_padding = 14
 
-            if share_hash:
-                print('> Sharing Hash : ' + share_hash)
-            else:
-                print('> Sharing Hash : ---')
+            print('> Client'.ljust(text_padding) + ' : ' + slug)
+            print('> Sharing Hash'.ljust(text_padding) + ' : ' + share_hash)
 
-            if share_hash and CONFIG.sovpn_share_url:
-                print('> Sharing URL  : ' + CONFIG.sovpn_share_url + share_hash)
-            else:
-                print('> Sharing URL  : ---')
-
+            # Output sharing URL if sovpn_share_url property is set.
+            if CONFIG.sovpn_share_url:
+                print('> Sharing URL'.ljust(text_padding) + ' : ' + CONFIG.sovpn_share_url + share_hash)
             print()
     else:
         print('> Sharing confirguration files for everybody.')
@@ -151,7 +147,6 @@ elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
     if ACTION == 'edit':
         SOVPN = SimplifiedOpenvpn()
         if CONFIG.needs_rotation:
-            print('needs')
             SOVPN.rotate_share_hashes()
 elif len(sys.argv) > 1 and sys.argv[1] == 'destroy':
     if SimplifiedOpenvpnConfig.needs_setup():
