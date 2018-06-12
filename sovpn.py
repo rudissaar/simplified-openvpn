@@ -66,6 +66,8 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
                 exit(1)
 
             ALLOWED_SLUGS.append(slug)
+
+        for slug in ALLOWED_SLUGS:
             share_hash = DB.find_client_share_hash_by_slug(slug)
             print('> Client       : ' + slug)
 
