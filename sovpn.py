@@ -8,9 +8,11 @@ import sys
 import os
 import logging
 import pystache
+
 from flask import Flask
 from flask import send_file
 from flask import abort
+
 from simplified_openvpn import SimplifiedOpenvpn
 from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
@@ -57,6 +59,12 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
         # As we are only serving files to specific clients we can aswell output their hashes.
         ALLOWED_SLUGS = list()
         for slug in sys.argv[2:]:
+            slugs = DB.get_all_client_slugs()
+            # Check if client with given slug exists in database.
+            if slugs and slug not in slugs:
+                print('> Client "' + slug + '"' + " doesn't exist in database.")
+                exit(1)
+
             ALLOWED_SLUGS.append(slug)
             share_hash = DB.find_client_share_hash_by_slug(slug)
             print('> Client       : ' + slug)
