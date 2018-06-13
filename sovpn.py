@@ -76,8 +76,9 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
             # Output sharing URL if sovpn_share_url property is set.
             if CONFIG.sovpn_share_url:
-                print('> Sharing URL'.ljust(text_padding) + ' : ' + CONFIG.sovpn_share_url + share_hash)
-            print()
+                print(
+                    '> Sharing URL'.ljust(text_padding) +
+                    ' : ' + CONFIG.sovpn_share_url + share_hash)
     else:
         print('> Sharing confirguration files for everybody.')
         print()

@@ -28,6 +28,7 @@ class SimplifiedOpenvpnConfig:
     settings['server']['protocol'] = None
     settings['server']['port'] = None
     settings['server']['sovpn_share_salt'] = None
+    settings['server']['sovpn_share_ip'] = None
     settings['server']['sovpn_share_port'] = None
     settings['server']['sovpn_share_url'] = None
     settings['server']['sovpn_config_file'] = None
@@ -465,6 +466,20 @@ class SimplifiedOpenvpnConfig:
     def sovpn_share_salt(self, value):
         """Assigns new value to sovpn_share_salt property."""
         self.settings['server']['sovpn_share_salt'] = value
+
+    @property
+    def sovpn_share_ip(self):
+        """Retutns IP that gets used in sharing."""
+        return self.settings['server']['sovpn_share_ip']
+
+    @sovpn_share_ip.setter
+    def sovpn_share_ip(self, value):
+        """Assigns new value to sovpn_share_ip property."""
+        if value is None:
+            self.settings['server']['sovpn_share_ip'] = None
+            return
+
+        self.settings['server']['sovpn_share_ip'] = value
 
     @property
     def sovpn_share_port(self):
