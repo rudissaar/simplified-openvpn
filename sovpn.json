@@ -6,6 +6,7 @@
         "hostname": null,
         "protocol": "udp",
         "port": 1194,
+        "sovpn_share_address": "0.0.0.0",
         "sovpn_share_port": 1195
     }
 }

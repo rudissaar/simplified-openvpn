@@ -177,6 +177,19 @@ class SimplifiedOpenvpnConfig:
         if self.loaded and suggestion != self.sovpn_share_salt:
             self.needs_rotation = True
 
+        # Ask value for sovpn_share_address property.
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('sovpn_share_address', suggestion_source)
+
+        while self.sovpn_share_address is None:
+            prompt = _prompt.get('sovpn_share_address', suggestion)
+            sovpn_share_address = input(prompt)
+            if sovpn_share_address.strip() == '':
+                sovpn_share_address = suggestion
+            self.sovpn_share_address = sovpn_share_address
+
+        config['server']['sovpn_share_address'] = self.sovpn_share_address
+
         # Ask value for sovpn_share_port property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
         suggestion = self.get_suggestion('sovpn_share_port', suggestion_source)
@@ -468,12 +481,12 @@ class SimplifiedOpenvpnConfig:
         self.settings['server']['sovpn_share_salt'] = value
 
     @property
-    def sovpn_share_ip(self):
+    def sovpn_share_address(self):
         """Retutns address that gets used in sharing."""
         return self.settings['server']['sovpn_share_address']
 
-    @sovpn_share_ip.setter
-    def sovpn_share_ip(self, value):
+    @sovpn_share_address.setter
+    def sovpn_share_address(self, value):
         """Assigns new value to sovpn_share_address property."""
         if value is None:
             self.settings['server']['sovpn_share_address'] = None
