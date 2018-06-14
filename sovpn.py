@@ -131,7 +131,8 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
         return send_file(PATH + slug + '/' + config_file)
 
-    APP.run(host='0.0.0.0', port=CONFIG.sovpn_share_port)
+    # Binding address and port for sharing proccess.
+    APP.run(host=CONFIG.sovpn_share_address, port=CONFIG.sovpn_share_port)
 elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
     ACTION = sys.argv[1]
 
