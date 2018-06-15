@@ -26,8 +26,13 @@ class SimplifiedOpenvpnData:
     def insert_share_hash(self, slug, share_hash):
         """Inserts new client record to clients table."""
         sql = self.read_sql_file('insert_client_record.sql')
-        self._db.cursor().execute(sql, [slug, share_hash])
-        self._db.commit()
+
+        try:
+            self._db.cursor().execute(sql, [slug, share_hash])
+            self._db.commit()
+            return True
+        except:
+            return None
 
     def rotate_share_hash(self, slug, share_hash):
         """Updates existing client record in clients table."""

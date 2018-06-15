@@ -18,7 +18,10 @@ class SimplifiedOpenvpn:
 
     def __init__(self):
         """Loads config if possible, else asks you to generate config."""
+        self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
         self._config = SimplifiedOpenvpnConfig()
+
+        # EasyRSA 2 requires loading environment variables manually.
         if self._config.easy_rsa_ver == 2:
             self.load_env()
 
@@ -197,12 +200,12 @@ class SimplifiedOpenvpn:
         if verbose:
             print('> Client "' + self._config.slug + '" was successfully created.')
 
-    def insert_share_hash(self, verbose=True):
+    def insert_share_hash(self):
         """Inserts client's data to database."""
         sovpn_data = SimplifiedOpenvpnData()
         sovpn_data.insert_share_hash(self._config.slug, self._config.share_hash)
-        if verbose:
-            print('> Share Hash: ' + self._config.share_hash)
+        if self._config.share_hash:
+            return self._config.share_hash
 
     def rotate_share_hashes(self):
         """Generates share hashes for clients who can be found in database."""
@@ -217,6 +220,19 @@ class SimplifiedOpenvpn:
         cert_files = [self._config.slug + '.crt', self._config.slug + '.key', 'ca.crt', 'ta.key']
         for cert_file in cert_files:
             os.remove(self._config.client_dir + cert_file)
+
+    def ask_to_share(self):
+        """Ask if you would like to share client's configuration files that you just created."""
+        answer = input(
+            '> Would you like to start sharing config files for this client right now?' +
+            ' (Y|N): ')
+
+        if str(answer).lower().strip() == 'y':
+            # Print blank line to make output prettier.
+            print()
+
+            # Execute share command just like normal person would do it.
+            os.system(self.container + 'sovpn.py share ' + self._config.slug)
 
     def create_client(self, pretty_name=None):
         """Entry point for client creation process."""
@@ -249,7 +265,10 @@ class SimplifiedOpenvpn:
         self.copy_ca_file()
         self.copy_ta_file()
         self.generate_config_files()
-        self.insert_share_hash()
+
+        # If generating share hash was successful then ask if to start sharing right now.
+        if self.insert_share_hash():
+            self.ask_to_share()
 
     def revoke_client(self, slug):
         """Revokes client's certificates. It only really work if your server uses CRL."""
