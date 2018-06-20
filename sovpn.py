@@ -58,6 +58,8 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     if len(sys.argv) > 2:
         # As we are only serving files to specific clients we can aswell output their hashes.
         ALLOWED_SLUGS = list()
+        print('> Sharing confirguration files for specific clients:', end="\n\n", flush=True)
+
         for slug in sys.argv[2:]:
             slugs = DB.get_all_client_slugs()
             # Check if client with given slug exists in database.
@@ -79,9 +81,12 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
                 print(
                     '> Sharing URL'.ljust(text_padding) +
                     ' : ' + CONFIG.sovpn_share_url + share_hash)
+
+            print()
     else:
         print('> Sharing confirguration files for everybody.')
-        print()
+
+    print('> Press CTRL+C to stop.')
 
     @APP.after_request
     def add_headers(request):

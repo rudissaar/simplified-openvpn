@@ -223,16 +223,21 @@ class SimplifiedOpenvpn:
 
     def ask_to_share(self):
         """Ask if you would like to share client's configuration files that you just created."""
-        answer = input(
-            '> Would you like to start sharing config files for this client right now?' +
-            ' (Y|N): ')
+        try:
+            answer = input(
+                '> Would you like to start sharing config files for this client right now?' +
+                ' (Y|N) [N]:')
 
-        if str(answer).lower().strip() == 'y':
-            # Print blank line to make output prettier.
+            if str(answer).lower().strip() == 'y':
+                # Print blank line to make output prettier.
+                print()
+
+                # Execute share command just like normal person would do it.
+                os.system(self.container + 'sovpn.py share ' + self._config.slug)
+        except KeyboardInterrupt:
+            # Print line return to make output prettier.
             print()
-
-            # Execute share command just like normal person would do it.
-            os.system(self.container + 'sovpn.py share ' + self._config.slug)
+            exit(0)
 
     def create_client(self, pretty_name=None):
         """Entry point for client creation process."""
