@@ -7,7 +7,8 @@ if [[ "${UID}" != '0' ]]; then
     exit 1
 fi
 
-dnf check-update \
+dnf check-update
+
 dnf install -y \
     python3 \
     python3-pystache \
