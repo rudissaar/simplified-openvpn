@@ -393,8 +393,6 @@ class SimplifiedOpenvpnConfig:
     def hostname(self):
         """Returns value of hostname property."""
         hostname = self.settings['server']['hostname']
-        if hostname is None:
-            hostname = self.fetch_hostname_by_config_file()
         return hostname
 
     @hostname.setter
@@ -408,17 +406,6 @@ class SimplifiedOpenvpnConfig:
             print('Value that you specified as Hostname is invalid: (' + value + ')')
         else:
             self.settings['server']['hostname'] = value
-
-    def fetch_hostname_by_config_file(self):
-        """Tries to fetch hostname from sovpn config file."""
-        if self.sovpn_config_file and os.path.isfile(self.sovpn_config_file):
-            with open(self.sovpn_config_file) as config_file:
-                data = json.load(config_file)
-                hostname = data['server']['hostname']
-
-            if _helper.is_valid_hostname(hostname):
-                return hostname
-        return None
 
     @property
     def ipv4(self):
