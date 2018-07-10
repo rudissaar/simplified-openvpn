@@ -130,6 +130,8 @@ class SimplifiedOpenvpnConfig:
             hostname = input(prompt)
             if hostname.strip() == '':
                 hostname = suggestion
+            elif hostname.strip() == '-':
+                hostname = False
             self.hostname = hostname
 
         config['server']['hostname'] = self.hostname
@@ -209,16 +211,22 @@ class SimplifiedOpenvpnConfig:
         config['server']['sovpn_share_port'] = self.sovpn_share_port
 
         # Ask value for sovpn_share_url property.
-        suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
+        if self.hostname:
+            suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
 
-        while self.sovpn_share_url is None:
-            prompt = _prompt.get('sovpn_share_url', suggestion)
-            sovpn_share_url = input(prompt)
-            if sovpn_share_url.strip() == '':
-                sovpn_share_url = suggestion
-            self.sovpn_share_url = sovpn_share_url
+            while self.sovpn_share_url is None:
+                prompt = _prompt.get('sovpn_share_url', suggestion)
+                sovpn_share_url = input(prompt)
+                if sovpn_share_url.strip() == '':
+                    sovpn_share_url = suggestion
+                self.sovpn_share_url = sovpn_share_url
 
-        config['server']['sovpn_share_url'] = self.sovpn_share_url
+            config['server']['sovpn_share_url'] = self.sovpn_share_url
+        else:
+            ipv4 = _helper.fetch_external_ipv4()
+            if _helper.is_valid_ipv4(ipv4):
+                self.sovpn_share_url = 'http://' + ipv4 + ':' + str(self.sovpn_share_port) + '/'
+                config['server']['sovpn_share_url'] = self.sovpn_share_url
 
         # Ask value for sovpn_config_file property.
         suggestion = self.server_dir + 'sovpn.json'
@@ -247,7 +255,6 @@ class SimplifiedOpenvpnConfig:
         properties = list(self.settings['server'].keys())
         properties.remove('easy_rsa_dir')
         properties.remove('easy_rsa_ver')
-        properties.remove('sovpn_share_url')
         properties.remove('sovpn_config_file')
 
         for current_property in properties:
@@ -401,6 +408,9 @@ class SimplifiedOpenvpnConfig:
         if value is None:
             self.settings['server']['hostname'] = None
             return
+        elif value is False:
+            self.settings['server']['hostname'] = False
+            return
 
         if not _helper.is_valid_hostname(value):
             print('Value that you specified as Hostname is invalid: (' + value + ')')
@@ -503,6 +513,10 @@ class SimplifiedOpenvpnConfig:
     @sovpn_share_url.setter
     def sovpn_share_url(self, value):
         """Assings new value to sovpn_share_url property."""
+        if value is None:
+            self.settings['server']['sovpn_share_url'] = value
+            return
+
         if not value.endswith('/'):
             value += '/'
         self.settings['server']['sovpn_share_url'] = value
