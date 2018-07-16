@@ -212,7 +212,11 @@ class SimplifiedOpenvpnConfig:
 
         # Ask value for sovpn_share_url property.
         if self.hostname:
-            suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
+            if self.sovpn_share_url:
+                suggestion = self.sovpn_share_url
+                self.sovpn_share_url = None
+            else:
+                suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
 
             while self.sovpn_share_url is None:
                 prompt = _prompt.get('sovpn_share_url', suggestion)
@@ -255,6 +259,7 @@ class SimplifiedOpenvpnConfig:
         properties = list(self.settings['server'].keys())
         properties.remove('easy_rsa_dir')
         properties.remove('easy_rsa_ver')
+        properties.remove('sovpn_share_url')
         properties.remove('sovpn_config_file')
 
         for current_property in properties:
