@@ -134,6 +134,10 @@ class SimplifiedOpenvpnConfig:
                 hostname = False
             self.hostname = hostname
 
+        # If hostname is changes then in most cases we also want to change sharing URL.
+        if suggestion != self.hostname and self.sovpn_share_url:
+            self.sovpn_share_url = None
+
         config['server']['hostname'] = self.hostname
 
         # Ask value for protocol property.
@@ -216,7 +220,17 @@ class SimplifiedOpenvpnConfig:
                 suggestion = self.sovpn_share_url
                 self.sovpn_share_url = None
             else:
-                suggestion = 'http://' + self.hostname + ':' + str(self.sovpn_share_port) + '/'
+                if self.sovpn_share_port == 443:
+                    suggestion = 'https://'
+                else:
+                    suggestion = 'http://'
+
+                suggestion += self.hostname
+
+                if self.sovpn_share_port != 443 and self.sovpn_share_port != 80:
+                    suggestion += ':' + str(self.sovpn_share_port)
+
+                suggestion += '/'
 
             while self.sovpn_share_url is None:
                 prompt = _prompt.get('sovpn_share_url', suggestion)
