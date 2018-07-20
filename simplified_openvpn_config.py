@@ -125,12 +125,16 @@ class SimplifiedOpenvpnConfig:
         suggestion_source = self.sovpn_config_file if self.loaded else None
         suggestion = self.get_suggestion('hostname', suggestion_source)
 
+        if not self.hostname and self.sovpn_share_url and not suggestion:
+            suggestion = '-'
+
         while self.hostname is None:
             prompt = _prompt.get('hostname', suggestion)
-            hostname = input(prompt)
-            if hostname.strip() == '':
+            hostname = input(prompt).strip()
+            if hostname == '' and suggestion and suggestion != '-':
                 hostname = suggestion
-            elif hostname.strip() == '-':
+            elif hostname == '-' or (hostname == '' and suggestion == '-'):
+                # pylint: disable=R0204
                 hostname = False
             self.hostname = hostname
 
@@ -219,6 +223,8 @@ class SimplifiedOpenvpnConfig:
             if self.sovpn_share_url:
                 suggestion = self.sovpn_share_url
                 self.sovpn_share_url = None
+            elif not self.hostname and self.hostname is False:
+                suggestion = '-'
             else:
                 if self.sovpn_share_port == 443:
                     suggestion = 'https://'
@@ -427,7 +433,7 @@ class SimplifiedOpenvpnConfig:
         if value is None:
             self.settings['server']['hostname'] = None
             return
-        elif value is False:
+        elif value is False or value == '-':
             self.settings['server']['hostname'] = False
             return
 
