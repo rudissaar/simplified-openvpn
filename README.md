@@ -36,7 +36,7 @@ To create new clients and their configuration files with Simplified OpenVPN just
 Or if you prefer longer version:
 
 ```
-./sovpn client create
+./sovpn create
 ```
 
 ### File Sharing

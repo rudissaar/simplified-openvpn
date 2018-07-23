@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # pylint: disable=W0621
+# pylint: disable=C0325
 
 """Bootstrap file and entry point for Simplified Openvpn."""
 
@@ -22,25 +23,19 @@ from simplified_openvpn_share import SimplifiedOpenvpnShare
 LOG = logging.getLogger('werkzeug')
 LOG.setLevel(logging.ERROR)
 
-if (
-        len(sys.argv) == 1 or
-        (sys.argv[1].lower() == 'client' and len(sys.argv) == 2) or
-        (sys.argv[1].lower() == 'client' and sys.argv[2].lower() == 'create')):
+if (len(sys.argv) == 1 or sys.argv[1].lower() == 'create'):
     # Crate client.
-    if len(sys.argv) > 3:
-        PRETTY_NAME = ' '.join(sys.argv[3:]).strip()
+    if len(sys.argv) > 2:
+        PRETTY_NAME = ' '.join(sys.argv[2:]).strip()
     else:
         PRETTY_NAME = None
 
     SOVPN = SimplifiedOpenvpn()
     SOVPN.create_client(PRETTY_NAME)
-elif len(sys.argv) > 2 and (
-        sys.argv[1].lower() == 'client' and sys.argv[2].lower() == 'revoke'
-        or sys.argv[1].lower() == 'revoke'):
+elif len(sys.argv) > 1 and sys.argv[1].lower() == 'revoke':
     # Revoke client.
     try:
-        COMMON_NAME_INDEX = 2 if sys.argv[1].lower() == 'revoke' else 3
-        COMMON_NAME = sys.argv[COMMON_NAME_INDEX].strip()
+        COMMON_NAME = sys.argv[2].strip()
         SOVPN = SimplifiedOpenvpn()
         SOVPN.revoke_client(COMMON_NAME)
     except IndexError:
