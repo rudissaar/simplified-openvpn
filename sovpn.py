@@ -133,16 +133,16 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
     # Binding address and port for sharing proccess.
     APP.run(host=CONFIG.sovpn_share_address, port=CONFIG.sovpn_share_port)
-elif len(sys.argv) > 1 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
+elif len(sys.argv) == 2 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
     ACTION = sys.argv[1]
 
     if ACTION == 'init':
         if not SimplifiedOpenvpnConfig.needs_setup():
-            CONFIG = SimplifiedOpenvpnConfig()
+            CONFIG = SimplifiedOpenvpnConfig(False)
             CONFIG.destroy()
             del CONFIG
 
-    CONFIG = SimplifiedOpenvpnConfig()
+    CONFIG = SimplifiedOpenvpnConfig(False)
     CONFIG.wipe()
     CONFIG.setup()
 

@@ -38,14 +38,15 @@ class SimplifiedOpenvpnConfig:
     settings['client']['slug'] = None
     settings['client']['share_hash'] = None
 
-    def __init__(self):
+    def __init__(self, run_setup=True):
         """Loads config if possible, else asks you to generate config."""
         self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
         self.loaded = False
         self.needs_rotation = False
 
         if self.needs_setup():
-            self.setup()
+            if run_setup:
+                self.setup()
         else:
             self.load()
 
@@ -54,11 +55,15 @@ class SimplifiedOpenvpnConfig:
         """Check if the script needs to run initial setup."""
         container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
         sovpn_config_pointer = container + 'sovpn_config_pointer.txt'
+
         if not os.path.isfile(sovpn_config_pointer):
             return True
+
         sovpn_config_file = _helper.read_file_as_value(sovpn_config_pointer)
+
         if os.path.isfile(sovpn_config_file):
             return False
+
         return True
 
     def setup(self):
