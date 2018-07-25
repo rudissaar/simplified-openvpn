@@ -14,11 +14,21 @@ class SimplifiedOpenvpnSuggest:
     @staticmethod
     def get_value_from_sample(key, sample_path=None):
         """Get suggestion from sample config."""
+        container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
+        override = container + 'local/'
+
+        if not os.path.isdir(override):
+            override = None
+
         if sample_path is None:
-            sample_path = os.path.dirname(os.path.realpath(__file__)) + '/sovpn.json'
+            if override:
+                sample_path = override + '/sovpn.json'
+            else:
+                sample_path = container + '/sovpn.json'
 
         sample = _helper.read_file_as_value(sample_path)
         defaults = json.loads(sample)
+
         if key in defaults['server']:
             return defaults['server'][key]
         return None
