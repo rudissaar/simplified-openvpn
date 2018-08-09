@@ -25,6 +25,10 @@ If you are using Easy RSA 2 your configuration should have following structure:
 
 For Easy RSA 3 you don't need any special modification, just make sure that binary exists.
 
+```
+{EAST_RSA_DIR}/easyrsa   - Easy RSA 3 binary
+```
+
 ### Client Creation
 
 To create new clients and their configuration files with Simplified OpenVPN just use:
@@ -36,15 +40,36 @@ To create new clients and their configuration files with Simplified OpenVPN just
 Or if you prefer longer version:
 
 ```
-./sovpn create
+./sovpn.py create
+```
+
+There is also option to pre-fill name for client that you are going to create,
+but you can only create 1 client at the time.
+
+```
+./sovpn.py create <pretty-name>
+```
+
+### Client Revocation
+
+In order to use client revocation functionality, your OpenVPN server setup needs to include CRL.
+
+```
+./sovpn.py revoke <common-name>
 ```
 
 ### File Sharing
 
-Simplified OpenVPN comes with built-in sharing functionality, in order to share generated configuration files with specific client use following command:
+Simplified OpenVPN comes with built-in sharing functionality, in order to share generated configuration files with specific clients use following command:
 
 ```
-./sovpn.py share <common-name>
+./sovpn.py share <common-name> ...
+```
+
+To open sharing for all existing clients use share command without any argument, but every client needs to know their own sharing hash.
+
+```
+./sovpn.py share
 ```
 
 Keep in mind that sharing functionality is optional.
