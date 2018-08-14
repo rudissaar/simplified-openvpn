@@ -33,13 +33,22 @@ if (len(sys.argv) == 1 or sys.argv[1].lower() == 'create'):
     SOVPN = SimplifiedOpenvpn()
     SOVPN.create_client(PRETTY_NAME)
 elif len(sys.argv) > 1 and sys.argv[1].lower() == 'revoke':
-    # Revoke client.
-    try:
-        COMMON_NAME = sys.argv[2].strip()
-        SOVPN = SimplifiedOpenvpn()
-        SOVPN.revoke_client(COMMON_NAME)
-    except IndexError:
+    # Revoke.
+    COMMON_NAMES = list()
+
+    if len(sys.argv) > 2:
+        for common_name in sys.argv[2:]:
+            COMMON_NAMES.append(common_name)
+    elif len(sys.argv) == 2:
+        COMMON_NAMES.append(sys.argv[2].strip())
+    else:
         print('> Usage: ' + sys.argv[0] + ' revoke [Common Name]')
+        exit(1)
+
+    SOVPN = SimplifiedOpenvpn()
+
+    for COMMON_NAME in COMMON_NAMES:
+        SOVPN.revoke_client(COMMON_NAME)
 elif len(sys.argv) > 1 and sys.argv[1] == 'share':
     # Share.
     CONFIG = SimplifiedOpenvpnConfig()
