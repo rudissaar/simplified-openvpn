@@ -14,6 +14,8 @@ class SimplifiedOpenvpnPrompt:
     prompts['hostname'] = 'Enter hostname of your server'
     prompts['protocol'] = 'Select protocol that you would like to use: (TCP|UDP)'
     prompts['port'] = 'Select port that you are using for for your server'
+    prompts['mgmt_address'] = 'Enter network address of OpenVPN management interface'
+    prompts['mgmt_port'] = 'Enter TCP port of OpenVPN management interface'
     prompts['sovpn_share_salt'] = 'Enter random Salt for sharing script'
     prompts['sovpn_share_address'] = 'Enter network address for sharing script'
     prompts['sovpn_share_port'] = 'Enter TCP port for sharing script'

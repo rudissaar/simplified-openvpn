@@ -27,6 +27,8 @@ class SimplifiedOpenvpnConfig:
     settings['server']['ipv4'] = None
     settings['server']['protocol'] = None
     settings['server']['port'] = None
+    settings['server']['mgmt_address'] = None
+    settings['server']['mgmt_port'] = None
     settings['server']['sovpn_share_salt'] = None
     settings['server']['sovpn_share_address'] = None
     settings['server']['sovpn_share_port'] = None
@@ -149,19 +151,6 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['hostname'] = self.hostname
 
-        # Ask value for protocol property.
-        suggestion_source = self.sovpn_config_file if self.loaded else None
-        suggestion = self.get_suggestion('protocol', suggestion_source)
-
-        while self.protocol is None:
-            prompt = _prompt.get('protocol', suggestion)
-            protocol = input(prompt)
-            if protocol.strip() == '':
-                protocol = suggestion
-            self.protocol = protocol
-
-        config['server']['protocol'] = self.protocol
-
         # Ask value for port property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
         suggestion = self.get_suggestion('port', suggestion_source)
@@ -174,6 +163,19 @@ class SimplifiedOpenvpnConfig:
             self.port = port
 
         config['server']['port'] = self.port
+
+        # Ask value for protocol property.
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('protocol', suggestion_source)
+
+        while self.protocol is None:
+            prompt = _prompt.get('protocol', suggestion)
+            protocol = input(prompt)
+            if protocol.strip() == '':
+                protocol = suggestion
+            self.protocol = protocol
+
+        config['server']['protocol'] = self.protocol
 
         # Ask value for sovpn_share_salt property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
@@ -467,20 +469,6 @@ class SimplifiedOpenvpnConfig:
         self.settings['server']['ipv4'] = value
 
     @property
-    def port(self):
-        """Returns value of port property."""
-        return self.settings['server']['port']
-
-    @port.setter
-    def port(self, value):
-        """Assigns new value to port property."""
-        if value is None:
-            self.settings['server']['port'] = None
-            return
-
-        self.settings['server']['port'] = int(value)
-
-    @property
     def protocol(self):
         """Returns value of protocol property."""
         return self.settings['server']['protocol']
@@ -496,6 +484,44 @@ class SimplifiedOpenvpnConfig:
 
         if isinstance(value, str) and value.lower() in protocols:
             self.settings['server']['protocol'] = value.lower()
+
+    @property
+    def port(self):
+        """Returns value of port property."""
+        return self.settings['server']['port']
+
+    @port.setter
+    def port(self, value):
+        """Assigns new value to port property."""
+        if value is None:
+            self.settings['server']['port'] = None
+            return
+
+        self.settings['server']['port'] = int(value)
+
+    @property
+    def mgmt_address(self):
+        """Returns value of mgmt_address property."""
+        return self.settings['server']['mgmt_address']
+
+    @mgmt_address.setter
+    def mgmt_address(self, value):
+        """Assigns new value to mgmt_address property."""
+        self.settings['server']['mgmt_address'] = value
+
+    @property
+    def mgmt_port(self):
+        """Returns value of mgmt_port property."""
+        return self.settings['server']['mgmt_port']
+
+    @mgmt_port.setter
+    def mgmt_port(self, value):
+        """Assigns new value to mgmt_port property."""
+        if value is None:
+            self.settings['server']['mgmt_port'] = None
+            return
+
+        self.settings['server']['mgmt_port'] = int(value)
 
     @property
     def sovpn_share_salt(self):
