@@ -43,6 +43,7 @@ class SimplifiedOpenvpnConfig:
     def __init__(self, run_setup=True):
         """Loads config if possible, else asks you to generate config."""
         self.container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
+        self.override = self.container + 'local/'
         self.loaded = False
         self.needs_rotation = False
 
@@ -278,8 +279,7 @@ class SimplifiedOpenvpnConfig:
             config_file.write(json.dumps(config) + "\n")
 
         # Copy client's template to server's directory.
-        client_template_path = self.container + 'templates/client.mustache'
-        copyfile(client_template_path, self.server_dir + 'client.mustache')
+        copyfile(self.client_template_path, self.server_dir + 'client.mustache')
 
     def wipe(self):
         """Resets properies to None."""
@@ -344,6 +344,20 @@ class SimplifiedOpenvpnConfig:
     def sovpn_config_file(self, value):
         """Assigns new value to sovpn_config_file property."""
         self.settings['server']['sovpn_config_file'] = value
+
+    @property
+    def client_template_path(self):
+        """Method that return path of client template file that will be copied to server_dir."""
+        if self.override:
+            path = self.override + 'client.mustache'
+            if os.path.isfile(path):
+                return path
+
+        path = self.container + 'templates/client.mustache'
+        if os.path.isfile(path):
+            return path
+
+        return None
 
     @property
     def server_dir(self):
