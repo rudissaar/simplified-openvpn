@@ -6,6 +6,7 @@
         "hostname": null,
         "protocol": "udp",
         "port": 1194,
+        "mgmt_used": false,
         "mgmt_address": "127.0.0.1",
         "mgmt_port": 5200,
         "sovpn_share_address": "0.0.0.0",

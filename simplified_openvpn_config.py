@@ -27,6 +27,7 @@ class SimplifiedOpenvpnConfig:
     settings['server']['ipv4'] = None
     settings['server']['protocol'] = None
     settings['server']['port'] = None
+    settings['server']['mgmt_used'] = None
     settings['server']['mgmt_address'] = None
     settings['server']['mgmt_port'] = None
     settings['server']['sovpn_share_salt'] = None
@@ -177,6 +178,19 @@ class SimplifiedOpenvpnConfig:
             self.protocol = protocol
 
         config['server']['protocol'] = self.protocol
+
+        # Ask if management interface will be used.
+        suggestion_source = self.sovpn_config_file if self.loaded else None
+        suggestion = self.get_suggestion('mgmt_used', suggestion_source)
+
+        while self.mgmt_used is None:
+            prompt = _prompt.get('mgmt_used', suggestion)
+            mgmt_used = input(prompt)
+            if mgmt_used.strip() == '':
+                mgmt_used = suggestion
+            self.mgmt_used = mgmt_used
+
+        config['server']['mgmt_used'] = self.mgmt_used
 
         # Ask value for sovpn_share_salt property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
@@ -512,6 +526,21 @@ class SimplifiedOpenvpnConfig:
             return
 
         self.settings['server']['port'] = int(value)
+
+    @property
+    def mgmt_used(self):
+        """Returns value of mgmt_used property."""
+        return self.settings['server']['mgmt_used']
+
+    @mgmt_used.setter
+    def mgmt_used(self, value):
+        """Assigns new value to mgmt_used property."""
+        if value is None:
+            self.settings['server']['mgmt_used'] = None
+        else:
+            value = isinstance(value, str) and value.strip().lower().startswith('y')
+
+            self.settings['server']['mgmt_used'] = value
 
     @property
     def mgmt_address(self):

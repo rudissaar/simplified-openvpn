@@ -81,6 +81,18 @@ class SimplifiedOpenvpnSuggest:
         return suggestion
 
     @staticmethod
+    def mgmt_used(sample_path=None):
+        # pylint: disable=E0602
+        """Getting suggestion for mgmt_used."""
+        suggestion = __class__.get_value_from_sample(_helper.current_method(), sample_path)
+        if suggestion is True:
+            suggestion = 'Y'
+        elif suggestion is False:
+            suggestion = 'N'
+
+        return suggestion
+
+    @staticmethod
     def sovpn_share_salt(sample_path=None):
         # pylint: disable=E0602
         """Getting suggestion for sovpn_share_salt."""
