@@ -192,6 +192,20 @@ class SimplifiedOpenvpnConfig:
 
         config['server']['mgmt_used'] = self.mgmt_used
 
+        if self.mgmt_used:
+            # Ask value for mgmt_address property.
+            suggestion_source = self.sovpn_config_file if self.loaded else None
+            suggestion = self.get_suggestion('mgmt_address', suggestion_source)
+
+            while self.mgmt_address is None:
+                prompt = _prompt.get('mgmt_address', suggestion)
+                mgmt_address = input(prompt)
+                if mgmt_address.strip() == '':
+                    mgmt_address = suggestion
+                self.mgmt_address = mgmt_address
+
+            config['server']['mgmt_address'] = self.mgmt_address
+
         # Ask value for sovpn_share_salt property.
         suggestion_source = self.sovpn_config_file if self.loaded else None
         suggestion = self.get_suggestion('sovpn_share_salt', suggestion_source)
