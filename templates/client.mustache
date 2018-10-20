@@ -11,10 +11,12 @@ remote {{ipv6}} {{port}}
 resolv-retry infinite
 nobind
 {{#deb}}
+daemon
 user nobody
 group nogroup
 {{/deb}}
 {{#rhel}}
+daemon
 user nobody
 group nobody
 {{/rhel}}
