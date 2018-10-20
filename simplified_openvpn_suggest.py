@@ -17,6 +17,7 @@ class SimplifiedOpenvpnSuggest:
         if sample_path is None:
             container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
             sample_path = container + '/sovpn.json'
+            fallback_path = sample_path
             override = container + 'local/'
 
             if not os.path.isdir(override):
@@ -28,8 +29,15 @@ class SimplifiedOpenvpnSuggest:
         sample = _helper.read_file_as_value(sample_path)
         defaults = json.loads(sample)
 
+        fallback = _helper.read_file_as_value(fallback_path)
+        fallback_defaults = json.loads(fallback)
+
         if key in defaults['server']:
             return defaults['server'][key]
+
+        if key in fallback_defaults['server']:
+            return fallback_defaults['server'][key]
+
         return None
 
     @staticmethod
