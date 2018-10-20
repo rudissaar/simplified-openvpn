@@ -143,7 +143,6 @@ class SimplifiedOpenvpnConfig:
             if hostname == '' and suggestion and suggestion != '-':
                 hostname = suggestion
             elif hostname == '-' or (hostname == '' and suggestion == '-'):
-                # pylint: disable=R0204
                 hostname = False
             self.hostname = hostname
 
@@ -402,10 +401,10 @@ class SimplifiedOpenvpnConfig:
         status = os.path.isdir(value)
 
         if not status:
-            print("Value that you specified as Server's directory is invalid: (" + value + ")")
+            print("Value that you specified as server's directory is invalid: (" + value + ")")
             print('Make sure that the value you gave meets following requirements:')
-            print('> Does the directory really exist in your filesystem?')
-            print('> The specified directory has write and execute permissions.')
+            print('> Does the directory really exist on your filesystem?')
+            print('> The specified directory has read, write and execute permissions.')
         else:
             self.settings['server']['server_dir'] = _helper.sanitize_path(value)
 
