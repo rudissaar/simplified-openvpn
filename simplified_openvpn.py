@@ -146,7 +146,7 @@ class SimplifiedOpenvpn:
 
         if not options['inline']:
             with zipfile.ZipFile(config_path + '.zip', 'w') as config_zip:
-                config_zip.write(config_path)
+                config_zip.write(config_path, os.path.basename(config_path))
                 config_zip.write(client_dir + 'ca.crt', 'ca.crt')
                 config_zip.write(client_dir + slug + '.crt', slug + '.crt')
                 config_zip.write(client_dir + slug + '.key', slug + '.key')
