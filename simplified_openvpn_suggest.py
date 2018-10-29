@@ -14,6 +14,8 @@ class SimplifiedOpenvpnSuggest:
     @staticmethod
     def get_value_from_sample(key, sample_path=None):
         """Get suggestion from sample config."""
+        fallback_path = None
+
         if sample_path is None:
             container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
             sample_path = container + '/sovpn.json'
@@ -29,8 +31,9 @@ class SimplifiedOpenvpnSuggest:
         sample = _helper.read_file_as_value(sample_path)
         defaults = json.loads(sample)
 
-        fallback = _helper.read_file_as_value(fallback_path)
-        fallback_defaults = json.loads(fallback)
+        if fallback_path:
+            fallback = _helper.read_file_as_value(fallback_path)
+            fallback_defaults = json.loads(fallback)
 
         if key in defaults['server']:
             return defaults['server'][key]
