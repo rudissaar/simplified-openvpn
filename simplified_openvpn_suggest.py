@@ -15,6 +15,7 @@ class SimplifiedOpenvpnSuggest:
     def get_value_from_sample(key, sample_path=None):
         """Get suggestion from sample config."""
         fallback_path = None
+        fallback_defaults = None
 
         if sample_path is None:
             container = _helper.sanitize_path(os.path.dirname(os.path.realpath(__file__)))
@@ -38,8 +39,9 @@ class SimplifiedOpenvpnSuggest:
         if key in defaults['server']:
             return defaults['server'][key]
 
-        if key in fallback_defaults['server']:
-            return fallback_defaults['server'][key]
+        if fallback_defaults:
+            if key in fallback_defaults['server']:
+                return fallback_defaults['server'][key]
 
         return None
 
