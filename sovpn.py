@@ -19,6 +19,7 @@ from simplified_openvpn_helper import SimplifiedOpenvpnHelper as _helper
 from simplified_openvpn_config import SimplifiedOpenvpnConfig
 from simplified_openvpn_data import SimplifiedOpenvpnData
 from simplified_openvpn_share import SimplifiedOpenvpnShare
+from simplified_openvpn_mgmt import SimplifiedOpenvpnMgmt
 
 LOG = logging.getLogger('werkzeug')
 LOG.setLevel(logging.ERROR)
@@ -142,6 +143,9 @@ elif len(sys.argv) > 1 and sys.argv[1] == 'share':
 
     # Binding address and port for sharing proccess.
     APP.run(host=CONFIG.sovpn_share_address, port=CONFIG.sovpn_share_port)
+elif len(sys.argv) > 2 and sys.argv[1] == 'kick':
+    MGMT = SimplifiedOpenvpnMgmt()
+    MGMT.kick(sys.argv[2])
 elif len(sys.argv) == 2 and (sys.argv[1] == 'init' or sys.argv[1] == 'edit'):
     ACTION = sys.argv[1]
 
