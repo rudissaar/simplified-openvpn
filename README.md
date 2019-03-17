@@ -2,6 +2,8 @@
 
 Simple client creation management interface for OpenVPN Community Edition that makes generating new clients fast and easy, it also provides extra functionalities like sharing client configuration files via web interface.
 
+[![asciicast](https://asciinema.org/a/234347.svg)](https://asciinema.org/a/234347)
+
 ### Requirements
 * python3.x
 * python3-pystache
