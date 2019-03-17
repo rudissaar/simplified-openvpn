@@ -2,15 +2,17 @@
 
 Simple client creation management interface for OpenVPN Community Edition that makes generating new clients fast and easy, it also provides extra functionalities like sharing client configuration files via web interface.
 
+## Demo - First Run
+
 [![asciicast](https://asciinema.org/a/234347.svg)](https://asciinema.org/a/234347)
 
-### Requirements
+## Requirements
 * python3.x
 * python3-pystache
 * python3-slugify
 * python3-flask
 
-### Server Structure
+## Server Structure
 In order to make Simplified OpenVPN work, the OpenVPN server needs to have
 following names and structure:
 
@@ -31,7 +33,7 @@ For Easy RSA 3 you don't need any special modification, just make sure that bina
 {EAST_RSA_DIR}/easyrsa   - Easy RSA 3 binary
 ```
 
-### Client Creation
+## Client Creation
 
 To create new clients and their configuration files with Simplified OpenVPN just use:
 
@@ -52,7 +54,7 @@ but you can only create 1 client at the time.
 ./sovpn.py create <pretty-name>
 ```
 
-### Client Revocation
+## Client Revocation
 
 In order to use client revocation functionality, your OpenVPN server setup needs to include CRL.
 
@@ -60,7 +62,7 @@ In order to use client revocation functionality, your OpenVPN server setup needs
 ./sovpn.py revoke <common-name>
 ```
 
-### File Sharing
+## File Sharing
 
 Simplified OpenVPN comes with built-in sharing functionality, in order to share generated configuration files with specific clients use following command:
 
@@ -76,7 +78,7 @@ To open sharing for all existing clients use share command without any argument,
 
 Keep in mind that sharing functionality is optional.
 
-### Miscellaneous
+## Miscellaneous
 
 If you are struggling with installation of OpenVPN server itself, then the following shell scripts might help you out:
 
